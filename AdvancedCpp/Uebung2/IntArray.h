@@ -6,25 +6,24 @@ class IntArray
 {
 public:
 	IntArray();
-	IntArray(IntArray& other);
+	IntArray(const IntArray& other);
 	IntArray(IntArray&& other);
 	IntArray(int startingSize);
 	~IntArray();
 
 	void append(int element);
 	void erase(int index);
-	int getLength();
+	int getLength() const;
 
-	int operator[](const int index);
+	int& operator[](const int index) const;
+	IntArray& operator=(const IntArray& other);
 
 private:
 
-	int* m_ArrayStart;
+	int* m_Array;
 	int m_CurrentLength = 0;
 
-	void allocateMemory(int amount);
-	void freeMemory();
-	void resize(int newSize);
+	void resize(const int newSize);
 	
 };
 
