@@ -1,4 +1,10 @@
 #include "Triangle.h"
+#define GLM_FORCE_RADIANS
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+#include <chrono>
+
 
 void Triangle::Run()
 {
@@ -12,23 +18,45 @@ void Triangle::MainLoop()
 	while (!glfwWindowShouldClose(Window))
 	{
 		glfwPollEvents();
+		UpdateUniformBuffer();
 		DrawFrame();
 	}
-	vkDeviceWaitIdle(Device);
+	vkDeviceWaitIdle(device);
+}
+
+void Triangle::UpdateUniformBuffer()
+{
+	static auto startTime = std::chrono::high_resolution_clock::now();
+
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float time = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count() / 1000.0f;
+
+	UniformBufferObject ubo = {};
+	ubo.model = glm::rotate(glm::mat4(), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	ubo.proj = glm::perspective(glm::radians(45.0f), SwapChainExtent.width / (float)SwapChainExtent.height, 0.1f, 10.0f);
+	ubo.proj[1][1] *= -1;
+
+	void* data;
+	vkMapMemory(device, uniformStagingBufferMemory, 0, sizeof(ubo), 0, &data);
+	memcpy(data, &ubo, sizeof(ubo));
+	vkUnmapMemory(device, uniformStagingBufferMemory);
+
+	CopyBuffer(uniformStagingBuffer, uniformBuffer, sizeof(ubo));
 }
 
 void Triangle::DrawFrame()
 {
-	uint32_t ImageIndex;
-	VkResult Result = vkAcquireNextImageKHR(Device, SwapChain, std::numeric_limits<uint64_t>::max(),
-											ImageAvailableSemaphore, VK_NULL_HANDLE, &ImageIndex);
+	uint32_t imageIndex;
+	VkResult result = vkAcquireNextImageKHR(device, swapChain, std::numeric_limits<uint64_t>::max(),
+											imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 
-	if (Result == VK_ERROR_OUT_OF_DATE_KHR)
+	if (result == VK_ERROR_OUT_OF_DATE_KHR)
 	{
 		RecreateSwapChain();
 		return;
 	}
-	else if (Result != VK_SUCCESS && Result != VK_SUBOPTIMAL_KHR)
+	else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 	{
 		throw std::runtime_error("Failed to acquire Swap Chain Image!");
 	}
@@ -36,19 +64,19 @@ void Triangle::DrawFrame()
 	VkSubmitInfo SubmitInfo = {};
 	SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-	VkSemaphore WaitSemaphores[] = { ImageAvailableSemaphore };
+	VkSemaphore WaitSemaphores[] = { imageAvailableSemaphore };
 	VkPipelineStageFlags WaitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	SubmitInfo.waitSemaphoreCount = 1;
 	SubmitInfo.pWaitSemaphores = WaitSemaphores;
 	SubmitInfo.pWaitDstStageMask = WaitStages;
 	SubmitInfo.commandBufferCount = 1;
-	SubmitInfo.pCommandBuffers = &CommandBuffers[ImageIndex];
+	SubmitInfo.pCommandBuffers = &CommandBuffers[imageIndex];
 
 	VkSemaphore SignalSemaphore[] = { RenderFinishedSemaphore };
 	SubmitInfo.signalSemaphoreCount = 1;
 	SubmitInfo.pSignalSemaphores = SignalSemaphore;
 
-	if (vkQueueSubmit(GraphicsQueue, 1, &SubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+	if (vkQueueSubmit(graphicsQueue, 1, &SubmitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to submit Draw Command Buffer!");
 	}
@@ -58,19 +86,19 @@ void Triangle::DrawFrame()
 	PresentInfo.waitSemaphoreCount = 1;
 	PresentInfo.pWaitSemaphores = SignalSemaphore;
 
-	VkSwapchainKHR SwapChains[] = { SwapChain };
+	VkSwapchainKHR SwapChains[] = { swapChain };
 	PresentInfo.swapchainCount = 1;
 	PresentInfo.pSwapchains = SwapChains;
-	PresentInfo.pImageIndices = &ImageIndex;
+	PresentInfo.pImageIndices = &imageIndex;
 	PresentInfo.pResults = nullptr;
 
-	Result = vkQueuePresentKHR(PresentQueue, &PresentInfo);
+	result = vkQueuePresentKHR(presentQueue, &PresentInfo);
 
-	if (Result == VK_ERROR_OUT_OF_DATE_KHR || Result == VK_SUBOPTIMAL_KHR)
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 	{
 		RecreateSwapChain();
 	}
-	else if (Result != VK_SUCCESS)
+	else if (result != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to present Swap Chain Image!");
 	}
@@ -96,10 +124,15 @@ void Triangle::InitVulkan()
 	CreateSwapChain();
 	CreateImageViews();
 	CreateRenderPass();
+	CreateDescriptorSetLayout();
 	CreateGraphicsPipeline();
 	CreateFramebuffers();
 	CreateCommandPool();
-	CreateVertexBuffers();
+	CreateVertexBuffer();
+	CreateIndexBuffer();
+	CreateUniformBuffer();
+	CreateDescriptorPool();
+	CreateDescriptorSet();
 	CreateCommandBuffers();
 	CreateSemaphores();
 }
@@ -231,13 +264,13 @@ void Triangle::CreateLogicalDevice()
 		CreateInfo.enabledLayerCount = 0;
 	}
 
-	if (vkCreateDevice(PhysicalDevice, &CreateInfo, nullptr, Device.replace()) != VK_SUCCESS)
+	if (vkCreateDevice(PhysicalDevice, &CreateInfo, nullptr, device.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create logical Device!");
 	}
 
-	vkGetDeviceQueue(Device, Indices.GraphicsFamily, 0, &GraphicsQueue);
-	vkGetDeviceQueue(Device, Indices.PresetFamily, 0, &PresentQueue);
+	vkGetDeviceQueue(device, Indices.GraphicsFamily, 0, &graphicsQueue);
+	vkGetDeviceQueue(device, Indices.PresetFamily, 0, &presentQueue);
 }
 
 void Triangle::CreateSwapChain()
@@ -286,25 +319,25 @@ void Triangle::CreateSwapChain()
 	CreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 	CreateInfo.presentMode = PresentMode;
 	CreateInfo.clipped = VK_TRUE;
-	VkSwapchainKHR OldSwapchain = SwapChain;
+	VkSwapchainKHR OldSwapchain = swapChain;
 	CreateInfo.oldSwapchain = OldSwapchain;
 
 	VkSwapchainKHR NewSwapChain;
-	if (vkCreateSwapchainKHR(Device, &CreateInfo, nullptr, &NewSwapChain) != VK_SUCCESS)
+	if (vkCreateSwapchainKHR(device, &CreateInfo, nullptr, &NewSwapChain) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create SwapChain!");
 	}
 
-	SwapChain = NewSwapChain;
+	swapChain = NewSwapChain;
 
-	vkGetSwapchainImagesKHR(Device, SwapChain, &ImageCount, nullptr);
+	vkGetSwapchainImagesKHR(device, swapChain, &ImageCount, nullptr);
 	SwapChainImages.resize(ImageCount);
-	vkGetSwapchainImagesKHR(Device, SwapChain, &ImageCount, SwapChainImages.data());
+	vkGetSwapchainImagesKHR(device, swapChain, &ImageCount, SwapChainImages.data());
 }
 
 void Triangle::CreateImageViews()
 {
-	SwapChainImageViews.resize(SwapChainImages.size(), VkDeleter<VkImageView>{Device, vkDestroyImageView});
+	SwapChainImageViews.resize(SwapChainImages.size(), VkDeleter<VkImageView>{device, vkDestroyImageView});
 
 	for (uint32_t i = 0; i < SwapChainImages.size(); i++)
 	{
@@ -322,7 +355,7 @@ void Triangle::CreateImageViews()
 		CreateInfo.subresourceRange.levelCount = 1;
 		CreateInfo.subresourceRange.baseArrayLayer = 0;
 		CreateInfo.subresourceRange.layerCount = 1;
-		if (vkCreateImageView(Device, &CreateInfo, nullptr, SwapChainImageViews[i].replace()) != VK_SUCCESS)
+		if (vkCreateImageView(device, &CreateInfo, nullptr, SwapChainImageViews[i].replace()) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create image views!");
 		}
@@ -369,9 +402,29 @@ void Triangle::CreateRenderPass()
 	RenderPassInfo.dependencyCount = 1;
 	RenderPassInfo.pDependencies = &Dependecy;
 
-	if (vkCreateRenderPass(Device, &RenderPassInfo, nullptr, RenderPass.replace()) != VK_SUCCESS)
+	if (vkCreateRenderPass(device, &RenderPassInfo, nullptr, RenderPass.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Render pass!");
+	}
+}
+
+void Triangle::CreateDescriptorSetLayout()
+{
+	VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+	uboLayoutBinding.binding = 0;
+	uboLayoutBinding.descriptorCount = 1;
+	uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	uboLayoutBinding.pImmutableSamplers = nullptr;
+	uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+	VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	layoutInfo.bindingCount = 1;
+	layoutInfo.pBindings = &uboLayoutBinding;
+
+	if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, DescriptorSetLayout.replace()) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create descriptor set layout!");
 	}
 }
 
@@ -380,8 +433,8 @@ void Triangle::CreateGraphicsPipeline()
 	auto VertexShaderCode = ReadFile("../shaders/vert.spv");
 	auto FragmentShaderCode = ReadFile("../shaders/frag.spv");
 
-	VkDeleter<VkShaderModule> VertexShaderModule{ Device, vkDestroyShaderModule };
-	VkDeleter<VkShaderModule> FragmentShaderModule{ Device, vkDestroyShaderModule };
+	VkDeleter<VkShaderModule> VertexShaderModule{ device, vkDestroyShaderModule };
+	VkDeleter<VkShaderModule> FragmentShaderModule{ device, vkDestroyShaderModule };
 
 	CreateShaderModule(VertexShaderCode, VertexShaderModule);
 	CreateShaderModule(FragmentShaderCode, FragmentShaderModule);
@@ -441,7 +494,7 @@ void Triangle::CreateGraphicsPipeline()
 	Rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 	Rasterizer.lineWidth = 1.0f;
 	Rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-	Rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	Rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	Rasterizer.depthBiasEnable = VK_FALSE;
 	Rasterizer.depthBiasConstantFactor = 0.0f;
 	Rasterizer.depthBiasClamp = 0.0f;
@@ -492,14 +545,14 @@ void Triangle::CreateGraphicsPipeline()
 	DynamicState.dynamicStateCount = 2;
 	DynamicState.pDynamicStates = DynamicStates;
 
+	VkDescriptorSetLayout SetLayouts[] = { DescriptorSetLayout };
+
 	VkPipelineLayoutCreateInfo PipelineLayoutInfo = {};
 	PipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	PipelineLayoutInfo.setLayoutCount = 0;
-	PipelineLayoutInfo.pSetLayouts = nullptr;
-	PipelineLayoutInfo.pushConstantRangeCount = 0;
-	PipelineLayoutInfo.pPushConstantRanges = 0;
+	PipelineLayoutInfo.setLayoutCount = 1;
+	PipelineLayoutInfo.pSetLayouts = SetLayouts;
 
-	if (vkCreatePipelineLayout(Device, &PipelineLayoutInfo, nullptr, PipelineLayout.replace()) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(device, &PipelineLayoutInfo, nullptr, PipelineLayout.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Pipeline Layout!");
 	}
@@ -522,7 +575,7 @@ void Triangle::CreateGraphicsPipeline()
 	PipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 	PipelineInfo.basePipelineIndex = -1;
 
-	if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, GraphicsPipeline.replace()) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &PipelineInfo, nullptr, GraphicsPipeline.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Graphics Pipeline!");
 	}
@@ -531,7 +584,7 @@ void Triangle::CreateGraphicsPipeline()
 
 void Triangle::CreateFramebuffers()
 {
-	SwapChainFramebuffers.resize(SwapChainImageViews.size(), VkDeleter<VkFramebuffer>{Device, vkDestroyFramebuffer});
+	SwapChainFramebuffers.resize(SwapChainImageViews.size(), VkDeleter<VkFramebuffer>{device, vkDestroyFramebuffer});
 	for (size_t i = 0; i < SwapChainImageViews.size(); i++)
 	{
 		VkImageView Attachments[] = {
@@ -547,7 +600,7 @@ void Triangle::CreateFramebuffers()
 		FramebufferInfo.height = SwapChainExtent.height;
 		FramebufferInfo.layers = 1;
 
-		if (vkCreateFramebuffer(Device, &FramebufferInfo, nullptr, SwapChainFramebuffers[i].replace()) != VK_SUCCESS)
+		if (vkCreateFramebuffer(device, &FramebufferInfo, nullptr, SwapChainFramebuffers[i].replace()) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create Frame buffers!");
 		}
@@ -561,51 +614,175 @@ void Triangle::CreateCommandPool()
 	PoolInfo.queueFamilyIndex = QueueFamilyIndex.GraphicsFamily;
 	PoolInfo.flags = 0;
 
-	if (vkCreateCommandPool(Device, &PoolInfo, nullptr, CommandPool.replace()) != VK_SUCCESS)
+	if (vkCreateCommandPool(device, &PoolInfo, nullptr, CommandPool.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Command Pool!");
 	}
 }
 
-void Triangle::CreateVertexBuffers()
+void Triangle::CreateVertexBuffer()
+{
+	VkDeviceSize BufferSize = sizeof(vertices[0]) * vertices.size();
+
+	VkDeleter<VkBuffer> StagingBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> StagingBufferMemory{ device, vkFreeMemory };
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, StagingBuffer, StagingBufferMemory);
+
+
+	void* Data;
+	vkMapMemory(device, StagingBufferMemory, 0, BufferSize, 0, &Data);
+	memcpy(Data, vertices.data(), (size_t)BufferSize);
+	vkUnmapMemory(device, StagingBufferMemory);
+
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VertexBuffer, VertexBufferMemory);
+
+	CopyBuffer(StagingBuffer, VertexBuffer, BufferSize);
+}
+
+void Triangle::CreateIndexBuffer()
+{
+	VkDeviceSize BufferSize = sizeof(indices[0]) * indices.size();
+
+	VkDeleter<VkBuffer> StagingBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> StagingBufferMemory{ device, vkFreeMemory };
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, StagingBuffer, StagingBufferMemory);
+
+
+	void* Data;
+	vkMapMemory(device, StagingBufferMemory, 0, BufferSize, 0, &Data);
+	memcpy(Data, indices.data(), (size_t)BufferSize);
+	vkUnmapMemory(device, StagingBufferMemory);
+
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, IndexBuffer, IndexBufferMemory);
+
+	CopyBuffer(StagingBuffer, IndexBuffer, BufferSize);
+
+}
+
+void Triangle::CreateUniformBuffer()
+{
+	VkDeviceSize BufferSize = sizeof(UniformBufferObject);
+
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformStagingBuffer, uniformStagingBufferMemory);
+	CreateBuffer(BufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, uniformBuffer, UniformBufferMemory);
+}
+
+void Triangle::CreateDescriptorPool()
+{
+	VkDescriptorPoolSize poolSize = {};
+	poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSize.descriptorCount = 1;
+
+	VkDescriptorPoolCreateInfo poolInfo = {};
+	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolInfo.poolSizeCount = 1;
+	poolInfo.pPoolSizes = &poolSize;
+	poolInfo.maxSets = 1;
+
+	if (vkCreateDescriptorPool(device, &poolInfo, nullptr, DescriptorPool.replace()) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to create descriptor pool!");
+	}
+}
+
+void Triangle::CreateDescriptorSet()
+{
+	VkDescriptorSetLayout layouts[] = { DescriptorSetLayout };
+	VkDescriptorSetAllocateInfo allocInfo = {};
+	allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	allocInfo.descriptorPool = DescriptorPool;
+	allocInfo.descriptorSetCount = 1;
+	allocInfo.pSetLayouts = layouts;
+
+	if (vkAllocateDescriptorSets(device, &allocInfo, &DescriptorSet) != VK_SUCCESS)
+	{
+		throw std::runtime_error("failed to allocate descriptor set!");
+	}
+
+	VkDescriptorBufferInfo bufferInfo = {};
+	bufferInfo.buffer = uniformBuffer;
+	bufferInfo.offset = 0;
+	bufferInfo.range = sizeof(UniformBufferObject);
+
+	VkWriteDescriptorSet descriptorWrite = {};
+	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descriptorWrite.dstSet = DescriptorSet;
+	descriptorWrite.dstBinding = 0;
+	descriptorWrite.dstArrayElement = 0;
+	descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descriptorWrite.descriptorCount = 1;
+	descriptorWrite.pBufferInfo = &bufferInfo;
+
+	vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+}
+
+void Triangle::CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkDeleter<VkBuffer>& Buffer, VkDeleter<VkDeviceMemory>& BufferMemory)
 {
 	VkBufferCreateInfo BufferInfo = {};
 	BufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	BufferInfo.size = sizeof(Vertices[0]) * Vertices.size();
-	BufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	BufferInfo.size = Size;
+	BufferInfo.usage = Usage;
 	BufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	if (vkCreateBuffer(Device, &BufferInfo, nullptr, VertexBuffer.replace()) != VK_SUCCESS)
+	if (vkCreateBuffer(device, &BufferInfo, nullptr, Buffer.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Vertex Buffer!");
 	}
 
 	VkMemoryRequirements MemRequirements;
-	vkGetBufferMemoryRequirements(Device, VertexBuffer, &MemRequirements);
+	vkGetBufferMemoryRequirements(device, Buffer, &MemRequirements);
 
 	VkMemoryAllocateInfo AllocInfo = {};
 	AllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 	AllocInfo.allocationSize = MemRequirements.size;
-	AllocInfo.memoryTypeIndex = FindMemoryType(MemRequirements.memoryTypeBits,
-											   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-											   | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	if (vkAllocateMemory(Device, &AllocInfo, nullptr, VertexBufferMemory.replace()) != VK_SUCCESS)
+	AllocInfo.memoryTypeIndex = FindMemoryType(MemRequirements.memoryTypeBits, Properties);
+	if (vkAllocateMemory(device, &AllocInfo, nullptr, BufferMemory.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate Vertex Buffer Memory!");
 	}
-	vkBindBufferMemory(Device, VertexBuffer, VertexBufferMemory, 0);
+	vkBindBufferMemory(device, Buffer, BufferMemory, 0);
+}
 
-	void* Data;
-	vkMapMemory(Device, VertexBufferMemory, 0, BufferInfo.size, 0, &Data);
-	memcpy(Data, Vertices.data(), (size_t)BufferInfo.size);
-	vkUnmapMemory(Device, VertexBufferMemory);
+void Triangle::CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size)
+{
+	VkCommandBufferAllocateInfo AllocInfo = {};
+	AllocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	AllocInfo.commandPool = CommandPool;
+	AllocInfo.commandBufferCount = 1;
+
+	VkCommandBuffer CommandBuffer;
+	vkAllocateCommandBuffers(device, &AllocInfo, &CommandBuffer);
+
+	VkCommandBufferBeginInfo BeginInfo = {};
+	BeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	BeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+	vkBeginCommandBuffer(CommandBuffer, &BeginInfo);
+
+	VkBufferCopy CopyRegion = {};
+	CopyRegion.srcOffset = 0;
+	CopyRegion.dstOffset = 0;
+	CopyRegion.size = Size;
+	vkCmdCopyBuffer(CommandBuffer, SrcBuffer, DstBuffer, 1, &CopyRegion);
+	vkEndCommandBuffer(CommandBuffer);
+
+	VkSubmitInfo SubmitInfo = {};
+	SubmitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	SubmitInfo.commandBufferCount = 1;
+	SubmitInfo.pCommandBuffers = &CommandBuffer;
+
+	vkQueueSubmit(graphicsQueue, 1, &SubmitInfo, VK_NULL_HANDLE);
+	vkQueueWaitIdle(graphicsQueue);
+
+	vkFreeCommandBuffers(device, CommandPool, 1, &CommandBuffer);
 }
 
 void Triangle::CreateCommandBuffers()
 {
 	if (CommandBuffers.size() > 0)
 	{
-		vkFreeCommandBuffers(Device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
+		vkFreeCommandBuffers(device, CommandPool, CommandBuffers.size(), CommandBuffers.data());
 	}
 	CommandBuffers.resize(SwapChainFramebuffers.size());
 
@@ -615,7 +792,7 @@ void Triangle::CreateCommandBuffers()
 	AllocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	AllocInfo.commandBufferCount = (uint32_t)CommandBuffers.size();
 
-	if (vkAllocateCommandBuffers(Device, &AllocInfo, CommandBuffers.data()) != VK_SUCCESS)
+	if (vkAllocateCommandBuffers(device, &AllocInfo, CommandBuffers.data()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to allocate Command Buffers!");
 	}
@@ -647,7 +824,11 @@ void Triangle::CreateCommandBuffers()
 		VkDeviceSize Offsets[] = { 0 };
 		vkCmdBindVertexBuffers(CommandBuffers[i], 0, 1, VertexBuffers, Offsets);
 
-		vkCmdDraw(CommandBuffers[i], Vertices.size(), 1, 0, 0);
+		vkCmdBindIndexBuffer(CommandBuffers[i], IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+
+		vkCmdBindDescriptorSets(CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, PipelineLayout, 0, 1, &DescriptorSet, 0, nullptr);
+
+		vkCmdDrawIndexed(CommandBuffers[i], indices.size(), 1, 0, 0, 0);
 
 		vkCmdEndRenderPass(CommandBuffers[i]);
 
@@ -663,8 +844,8 @@ void Triangle::CreateSemaphores()
 {
 	VkSemaphoreCreateInfo SemaphoreInfo = {};
 	SemaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-	if (vkCreateSemaphore(Device, &SemaphoreInfo, nullptr, ImageAvailableSemaphore.replace()) != VK_SUCCESS
-		|| vkCreateSemaphore(Device, &SemaphoreInfo, nullptr, RenderFinishedSemaphore.replace()) != VK_SUCCESS)
+	if (vkCreateSemaphore(device, &SemaphoreInfo, nullptr, imageAvailableSemaphore.replace()) != VK_SUCCESS
+		|| vkCreateSemaphore(device, &SemaphoreInfo, nullptr, RenderFinishedSemaphore.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Semaphores!");
 	}
@@ -672,7 +853,7 @@ void Triangle::CreateSemaphores()
 
 void Triangle::RecreateSwapChain()
 {
-	vkDeviceWaitIdle(Device);
+	vkDeviceWaitIdle(device);
 	CreateSwapChain();
 	CreateImageViews();
 	CreateRenderPass();
@@ -769,7 +950,7 @@ void Triangle::CreateShaderModule(const std::vector<char>& Code, VkDeleter<VkSha
 	CreateInfo.codeSize = Code.size();
 	CreateInfo.pCode = (uint32_t*)Code.data();
 
-	if (vkCreateShaderModule(Device, &CreateInfo, nullptr, ShaderModule.replace()) != VK_SUCCESS)
+	if (vkCreateShaderModule(device, &CreateInfo, nullptr, ShaderModule.replace()) != VK_SUCCESS)
 	{
 		throw std::runtime_error("Failed to create Shader Module!");
 	}

@@ -13,6 +13,7 @@
 #include "QueueFamilyIndices.h"
 #include "SwapChainSupportDetails.h"
 #include "Vertex.h"
+#include "UniformBufferObject.h"
 
 class Triangle
 {
@@ -43,18 +44,28 @@ private:
 
 	VkDeleter<VkInstance> Instance{ vkDestroyInstance };
 	VkDeleter<VkDebugReportCallbackEXT> Callback{ Instance, DestroyDebugReportCallbackEXT };
-	VkDeleter<VkDevice> Device{ vkDestroyDevice };
+	VkDeleter<VkDevice> device{ vkDestroyDevice };
 	VkDeleter<VkSurfaceKHR> Surface{ Instance, vkDestroySurfaceKHR };
-	VkDeleter<VkSwapchainKHR> SwapChain{ Device, vkDestroySwapchainKHR };
-	VkDeleter<VkRenderPass> RenderPass{ Device, vkDestroyRenderPass };
-	VkDeleter<VkPipelineLayout> PipelineLayout{ Device, vkDestroyPipelineLayout };
-	VkDeleter<VkPipeline> GraphicsPipeline{ Device, vkDestroyPipeline };
-	VkDeleter<VkCommandPool> CommandPool{ Device, vkDestroyCommandPool };
-	VkDeleter<VkSemaphore> ImageAvailableSemaphore{ Device, vkDestroySemaphore };
-	VkDeleter<VkSemaphore> RenderFinishedSemaphore{ Device, vkDestroySemaphore };
-	VkDeleter<VkBuffer> VertexBuffer{ Device, vkDestroyBuffer };
-	VkDeleter<VkDeviceMemory> VertexBufferMemory{ Device, vkFreeMemory };
+	VkDeleter<VkSwapchainKHR> swapChain{ device, vkDestroySwapchainKHR };
+	VkDeleter<VkRenderPass> RenderPass{ device, vkDestroyRenderPass };
+	VkDeleter<VkDescriptorSetLayout> DescriptorSetLayout{ device, vkDestroyDescriptorSetLayout };
+	VkDeleter<VkPipelineLayout> PipelineLayout{ device, vkDestroyPipelineLayout };
+	VkDeleter<VkPipeline> GraphicsPipeline{ device, vkDestroyPipeline };
+	VkDeleter<VkCommandPool> CommandPool{ device, vkDestroyCommandPool };
+	VkDeleter<VkSemaphore> imageAvailableSemaphore{ device, vkDestroySemaphore };
+	VkDeleter<VkSemaphore> RenderFinishedSemaphore{ device, vkDestroySemaphore };
+	VkDeleter<VkBuffer> VertexBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> VertexBufferMemory{ device, vkFreeMemory };
+	VkDeleter<VkBuffer> IndexBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> IndexBufferMemory{ device, vkFreeMemory };
 
+	VkDeleter<VkBuffer> uniformStagingBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> uniformStagingBufferMemory{ device, vkFreeMemory };
+	VkDeleter<VkBuffer> uniformBuffer{ device, vkDestroyBuffer };
+	VkDeleter<VkDeviceMemory> UniformBufferMemory{ device, vkFreeMemory };
+
+	VkDeleter<VkDescriptorPool> DescriptorPool{ device, vkDestroyDescriptorPool };
+	VkDescriptorSet DescriptorSet;
 
 	std::vector<VkDeleter<VkFramebuffer>> SwapChainFramebuffers;
 
@@ -68,17 +79,24 @@ private:
 
 	VkPhysicalDevice PhysicalDevice = VK_NULL_HANDLE;
 
-	VkQueue GraphicsQueue;
-	VkQueue PresentQueue;
+	VkQueue graphicsQueue;
+	VkQueue presentQueue;
 
-	const std::vector<Vertex> Vertices = {
-		{ {0.0f, -0.5f}, {1.0f, 0.0f, 0.0f} },
-		{ {0.5f, 0.5f}, {0.0f, 1.0f, 0.0f} },
-		{ {-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f} }
+	const std::vector<Vertex> vertices = {
+		{ { -0.5f, -0.5f },{ 1.0f, 0.0f, 0.0f } },
+		{ { 0.5f, -0.5f },{ 0.0f, 1.0f, 0.0f } },
+		{ { 0.5f, 0.5f },{ 0.0f, 0.0f, 1.0f } },
+		{ { -0.5f, 0.5f },{ 1.0f, 1.0f, 1.0f } }
+	};
+
+	const std::vector<uint32_t> indices = {
+		0, 1, 2, 2, 3, 0
 	};
 
 	void MainLoop();
 	void DrawFrame();
+
+	void UpdateUniformBuffer();
 
 	void InitWindow();
 	void InitVulkan();
@@ -91,14 +109,23 @@ private:
 	void CreateSwapChain();
 	void CreateImageViews();
 	void CreateRenderPass();
+	void CreateDescriptorSetLayout();
 	void CreateGraphicsPipeline();
 	void CreateFramebuffers();
 	void CreateCommandPool();
-	void CreateVertexBuffers();
+	void CreateVertexBuffer();
+	void CreateIndexBuffer();
+	void CreateUniformBuffer();
+	void CreateDescriptorPool();
+	void CreateDescriptorSet();
 	void CreateCommandBuffers();
 	void CreateSemaphores();
 
 	void RecreateSwapChain();
+
+	void CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkDeleter<VkBuffer>& Buffer, VkDeleter<VkDeviceMemory>& BufferMemory);
+
+	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
 
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
