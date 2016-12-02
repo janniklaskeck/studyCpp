@@ -15,7 +15,7 @@ public:
     int getY();
     void setX(const int x);
     void setY(const int y);
-    int length();
+    double length();
     int dot(Vector2D other);
     Vector2D cross(Vector2D other);
 

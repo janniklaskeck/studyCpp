@@ -23,7 +23,7 @@ void Vector2D::setY(const int y) {
     this->y = y;
 }
 
-int Vector2D::length() {
+double Vector2D::length() {
     return sqrt(x * x + y * y);
 }
 

@@ -8,9 +8,11 @@ IntArray::IntArray()
 IntArray::IntArray(const IntArray& other)
 {
 	m_CurrentLength = other.getLength();
+	//delete[] m_Array;
 	m_Array = new int[other.getLength()];
 	for (int i = 0; i < other.getLength(); i++)
 	{
+		int otherI = other[i];
 		m_Array[0] = other[i];
 	}
 }
@@ -24,6 +26,7 @@ IntArray::IntArray(IntArray && other)
 IntArray::IntArray(int startingSize)
 {
 	m_Array = new int[startingSize];
+	m_ReservedCapacity = startingSize;
 }
 
 IntArray::~IntArray()
@@ -34,13 +37,33 @@ IntArray::~IntArray()
 void IntArray::append(int element)
 {
 	m_CurrentLength++;
-	resize(m_CurrentLength);
-	m_Array[getLength() - 1] = element;
+	if (m_CurrentLength >= m_ReservedCapacity)
+	{
+		resize(m_CurrentLength);
+	}
+	m_Array[m_CurrentLength - 1] = element;
 }
 
 void IntArray::erase(int index)
 {
+	if (index >= m_CurrentLength || index < 0)
+	{
+		return;
+	}
 	m_CurrentLength--;
+	IntArray tmp(*this);
+	resize(m_ReservedCapacity);
+	int tmpIndex = 0;
+	int normalIndex = 0;
+	while (normalIndex != m_CurrentLength - 1)
+	{
+		if (tmpIndex != index)
+		{
+			m_Array[normalIndex] = tmp[tmpIndex];
+			normalIndex++;
+		}
+		tmpIndex++;
+	}
 }
 
 int IntArray::getLength() const
@@ -80,6 +103,7 @@ IntArray& IntArray::operator=(const IntArray& other)
 void IntArray::resize(const int newSize)
 {
 	int* buffer = new int[newSize];
+	m_ReservedCapacity = newSize;
 	for (int i = 0; i < newSize; i++)
 	{
 		buffer[i] = m_Array[i];

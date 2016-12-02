@@ -124,7 +124,7 @@ bool Board::move(const char direction)
 
 int Board::getField(Vector2D position)
 {
-	const int mapSize = m_map.size();
+	const size_t mapSize = m_map.size();
 	if (position.getX() >= 0 && position.getX() < mapSize && position.getY() >= 0 && position.getY() < mapSize)
 	{
 		return m_map[position.getX()][position.getY()];
