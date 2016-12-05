@@ -4,14 +4,12 @@
 
 class ITile
 {
-protected:
-	char displayChar;
 
 public:
-
+	char displayChar;
 
 	virtual bool isBlocking() = 0;
 	virtual bool isGoal() = 0;
 
-	virtual void render(std::ostream stream) = 0;
+	virtual void render(std::ostream& stream) = 0;
 };

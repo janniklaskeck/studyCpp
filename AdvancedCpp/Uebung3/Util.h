@@ -7,6 +7,6 @@
 class Util
 {
 public:
-	static std::vector<std::vector<char>> loadBoard(char* fileName);
+	static std::vector<std::vector<ITile*>> loadBoard(char* fileName);
 };
 

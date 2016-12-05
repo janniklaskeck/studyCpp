@@ -3,11 +3,15 @@
 #include <iostream>
 #include <string>
 
-std::vector<std::vector<char>> Util::loadBoard(char* fileName)
+#include "Wall.h"
+#include "Freespace.h"
+#include "Goal.h"
+
+std::vector<std::vector<ITile*>> Util::loadBoard(char* fileName)
 {
 	std::ifstream stream(fileName, std::ios::in);
 
-	std::vector<std::vector<char>> board;
+	std::vector<std::vector<ITile*>> board;
 
 	size_t boardSize = 0;
 	int lineNumber = 0;
@@ -22,7 +26,20 @@ std::vector<std::vector<char>> Util::loadBoard(char* fileName)
 		for (int i = 0; i < boardSize; i++)
 		{
 			board[lineNumber].resize(10);
-			board[lineNumber][i] = line[i];
+			if (line[i] == 'W')
+			{
+				board[lineNumber][i] = new Wall;
+			}
+			else if (line[i] == 'G')
+			{
+				board[lineNumber][i] = new Goal;
+
+			}
+			else
+			{
+				board[lineNumber][i] = new Freespace;
+			}
+
 		}
 		lineNumber++;
 	}

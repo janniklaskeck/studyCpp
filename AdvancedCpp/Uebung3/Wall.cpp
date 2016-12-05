@@ -2,7 +2,7 @@
 
 Wall::Wall()
 {
-	displayChar = 'X';
+	displayChar = 'W';
 }
 
 Wall::~Wall()
@@ -11,7 +11,7 @@ Wall::~Wall()
 
 bool Wall::isBlocking()
 {
-	return false;
+	return true;
 }
 
 bool Wall::isGoal()
@@ -19,7 +19,7 @@ bool Wall::isGoal()
 	return false;
 }
 
-void Wall::render(std::ostream stream)
+void Wall::render(std::ostream& stream)
 {
-
+	stream << displayChar;
 }

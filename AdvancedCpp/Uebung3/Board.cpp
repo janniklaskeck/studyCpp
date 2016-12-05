@@ -19,13 +19,13 @@ std::string Board::getTopRow()
 	{
 		if (playerX >= 1)
 		{
-			topLeft = m_map[playerX - 1][playerY - 1];
+			topLeft = m_map[playerX - 1][playerY - 1]->displayChar;
 		}
 		if (playerX <= 5)
 		{
-			topRight = m_map[playerX + 1][playerY - 1];
+			topRight = m_map[playerX + 1][playerY - 1]->displayChar;
 		}
-		top = m_map[playerX][playerY - 1];
+		top = m_map[playerX][playerY - 1]->displayChar;
 	}
 	std::string row;
 	std::stringstream ss;
@@ -44,13 +44,13 @@ std::string Board::getBottomRow()
 	{
 		if (playerX >= 1)
 		{
-			bottomLeft = m_map[playerX - 1][playerY + 1];
+			bottomLeft = m_map[playerX - 1][playerY + 1]->displayChar;
 		}
 		if (playerX <= 5)
 		{
-			bottomRight = m_map[playerX + 1][playerY + 1];
+			bottomRight = m_map[playerX + 1][playerY + 1]->displayChar;
 		}
-		bottom = m_map[playerX][playerY + 1];
+		bottom = m_map[playerX][playerY + 1]->displayChar;
 	}
 	std::stringstream ss;
 	ss << bottomLeft << bottom << bottomRight;
@@ -64,12 +64,12 @@ std::string Board::getCurrentRow()
 	char left = 'X';
 	if (playerX >= 1)
 	{
-		left = m_map[playerX - 1][playerY];
+		left = m_map[playerX - 1][playerY]->displayChar;
 	}
 	char right = 'X';
 	if (playerX <= 5)
 	{
-		right = m_map[playerX + 1][playerY];
+		right = m_map[playerX + 1][playerY]->displayChar;
 	}
 	char player = 'O';
 	std::stringstream ss;
@@ -84,53 +84,53 @@ bool Board::move(const char direction)
 	const int playerY = m_playerPos.getY();
 	if (direction == 'w')
 	{
-		if (playerY >= 1 && m_map[playerX][playerY - 1] != 'X')
+		if (playerY >= 1 && !m_map[playerX][playerY - 1]->isBlocking())
 		{
 			movement.setY(-1);
 		}
 	}
 	else if (direction == 's')
 	{
-		if (playerY <= m_map.size() && m_map[playerX][playerY + 1] != 'X')
+		if (playerY <= m_map.size() && !m_map[playerX][playerY + 1]->isBlocking())
 		{
 			movement.setY(1);
 		}
 	}
 	else if (direction == 'a')
 	{
-		if (playerX >= 1 && m_map[playerX - 1][playerY] != 'X')
+		if (playerX >= 1 && !m_map[playerX - 1][playerY]->isBlocking())
 		{
 			movement.setX(-1);
 		}
 	}
 	else if (direction == 'd')
 	{
-		if (playerX <= m_map.size() && m_map[playerX + 1][playerY] != 'X')
+		if (playerX <= m_map.size() && !m_map[playerX + 1][playerY]->isBlocking())
 		{
 			movement.setX(1);
 		}
 	}
 	const Vector2D postMove = Vector2D(playerX + movement.getX(), playerY + movement.getY());
-	const char nextField = getField(postMove);
-	if (nextField == 'G')
+	ITile* nextField = getField(postMove);
+	if (nextField->isGoal())
 	{
 		return true;
 	}
-	else if (nextField != 8)
+	else if (!nextField->isBlocking())
 	{
 		m_playerPos += movement;
 	}
 	return false;
 }
 
-char Board::getField(Vector2D position)
+ITile* Board::getField(Vector2D position)
 {
 	const size_t mapSize = m_map.size();
 	if (position.getX() >= 0 && position.getX() < mapSize && position.getY() >= 0 && position.getY() < mapSize)
 	{
 		return m_map[position.getX()][position.getY()];
 	}
-	return 'X';
+	return new Wall;
 }
 
 Board::Board()
@@ -138,9 +138,15 @@ Board::Board()
 	m_map = Util::loadBoard("board.txt");
 }
 
-
 Board::~Board()
 {
+	for (int x = 0; x < m_map.size(); x++)
+	{
+		for (int y = 0; y < m_map[x].size(); y++)
+		{
+			delete m_map[x][y];
+		}
+	}
 }
 
 void Board::render()
@@ -150,9 +156,21 @@ void Board::render()
 	while (running)
 	{
 		system("cls");
-		cout << getTopRow() << endl;
-		cout << getCurrentRow() << endl;
-		cout << getBottomRow() << endl;
+		for (int y = 0; y < m_map.size(); y++)
+		{
+			for (int x = 0; x < m_map[y].size(); x++)
+			{
+				if (m_playerPos.getX() == x && m_playerPos.getY() == y)
+				{
+					cout << 'X';
+				}
+				else
+				{
+					m_map[y][x]->render(cout);
+				}
+			}
+			cout << endl;
+		}
 		cout << endl;
 		cout << "Move with w, a, s, d (up, left, down, right). Exit with 0!" << endl;
 		cout << m_playerPos.getX() << m_playerPos.getY() << endl;

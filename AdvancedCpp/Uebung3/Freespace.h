@@ -1,12 +1,11 @@
 #pragma once
 #include "ITile.h"
 
-class Wall : public ITile
+class Freespace : public ITile
 {
-
 public:
-	Wall();
-	~Wall();
+	Freespace();
+	~Freespace();
 
 	virtual bool isBlocking() override;
 	virtual bool isGoal() override;
