@@ -11,10 +11,6 @@ private:
     std::vector<std::vector<ITile*>> m_map;
     Vector2D m_playerPos = Vector2D(1, 1);
 
-    std::string getTopRow();
-    std::string getBottomRow();
-    std::string getCurrentRow();
-
     bool move(const char direction);
     ITile* getField(const Vector2D position);
 

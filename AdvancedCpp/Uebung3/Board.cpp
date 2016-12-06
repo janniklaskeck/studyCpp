@@ -8,75 +8,6 @@
 #include <sstream>
 #include "Util.h"
 
-std::string Board::getTopRow()
-{
-	const int playerX = m_playerPos.getX();
-	const int playerY = m_playerPos.getY();
-	char topLeft = 'X';
-	char top = 'X';
-	char topRight = 'X';
-	if (playerY >= 1)
-	{
-		if (playerX >= 1)
-		{
-			topLeft = m_map[playerX - 1][playerY - 1]->displayChar;
-		}
-		if (playerX <= 5)
-		{
-			topRight = m_map[playerX + 1][playerY - 1]->displayChar;
-		}
-		top = m_map[playerX][playerY - 1]->displayChar;
-	}
-	std::string row;
-	std::stringstream ss;
-	ss << topLeft << top << topRight;
-	return ss.str();
-}
-
-std::string Board::getBottomRow()
-{
-	const int playerX = m_playerPos.getX();
-	const int playerY = m_playerPos.getY();
-	char bottomLeft = 'X';
-	char bottom = 'X';
-	char bottomRight = 'X';
-	if (playerY <= 5)
-	{
-		if (playerX >= 1)
-		{
-			bottomLeft = m_map[playerX - 1][playerY + 1]->displayChar;
-		}
-		if (playerX <= 5)
-		{
-			bottomRight = m_map[playerX + 1][playerY + 1]->displayChar;
-		}
-		bottom = m_map[playerX][playerY + 1]->displayChar;
-	}
-	std::stringstream ss;
-	ss << bottomLeft << bottom << bottomRight;
-	return ss.str();
-}
-
-std::string Board::getCurrentRow()
-{
-	const int playerX = m_playerPos.getX();
-	const int playerY = m_playerPos.getY();
-	char left = 'X';
-	if (playerX >= 1)
-	{
-		left = m_map[playerX - 1][playerY]->displayChar;
-	}
-	char right = 'X';
-	if (playerX <= 5)
-	{
-		right = m_map[playerX + 1][playerY]->displayChar;
-	}
-	char player = 'O';
-	std::stringstream ss;
-	ss << left << player << right;
-	return ss.str();
-}
-
 bool Board::move(const char direction)
 {
 	Vector2D movement;
@@ -84,28 +15,28 @@ bool Board::move(const char direction)
 	const int playerY = m_playerPos.getY();
 	if (direction == 'w')
 	{
-		if (playerY >= 1 && !m_map[playerX][playerY - 1]->isBlocking())
+		if (playerY >= 1 && !getField(Vector2D(playerX, playerY - 1))->isBlocking())
 		{
 			movement.setY(-1);
 		}
 	}
 	else if (direction == 's')
 	{
-		if (playerY <= m_map.size() && !m_map[playerX][playerY + 1]->isBlocking())
+		if (playerY <= m_map.size() && !getField(Vector2D(playerX, playerY + 1))->isBlocking())
 		{
 			movement.setY(1);
 		}
 	}
 	else if (direction == 'a')
 	{
-		if (playerX >= 1 && !m_map[playerX - 1][playerY]->isBlocking())
+		if (playerX >= 1 && !getField(Vector2D(playerX - 1, playerY))->isBlocking())
 		{
 			movement.setX(-1);
 		}
 	}
 	else if (direction == 'd')
 	{
-		if (playerX <= m_map.size() && !m_map[playerX + 1][playerY]->isBlocking())
+		if (playerX <= m_map.size() && !getField(Vector2D(playerX + 1, playerY))->isBlocking())
 		{
 			movement.setX(1);
 		}
@@ -128,7 +59,7 @@ ITile* Board::getField(Vector2D position)
 	const size_t mapSize = m_map.size();
 	if (position.getX() >= 0 && position.getX() < mapSize && position.getY() >= 0 && position.getY() < mapSize)
 	{
-		return m_map[position.getX()][position.getY()];
+		return m_map[position.getY()][position.getX()];
 	}
 	return new Wall;
 }
