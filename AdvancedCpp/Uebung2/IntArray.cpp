@@ -1,4 +1,5 @@
 #include "IntArray.h"
+#include <stdexcept>
 
 IntArray::IntArray()
 {

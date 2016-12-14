@@ -1,7 +1,21 @@
 #include "IntArray.h"
 #include <conio.h>
+#include <iostream>
 
-using namespace std;
+
+#define PRINT(msg) std::cout << msg << std::endl;
+#define PRINTARRAY(array, length) \
+for(int i = 0; i < length; i++) \
+    PRINT(array[i]);
+
+
+void print(IntArray a, int length)
+{
+	for (int i = 0; i < length; i++)
+	{
+		PRINT(a[i]);
+	}
+}
 
 int main()
 {
@@ -17,7 +31,7 @@ int main()
 	arr1.append(3);
 	arr1.append(4);
 	arr1.append(5);
-	PRINTARRAY(arr1, arr1.getLength());
+	print(arr1, arr1.getLength());
 	PRINT("After Erase");
 	arr1.erase(0);
 	arr1.erase(3);

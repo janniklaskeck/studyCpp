@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Board.h"
 
 #include <conio.h>
@@ -11,45 +10,40 @@
 bool Board::move(const char direction)
 {
 	Vector2D movement;
-	const int playerX = m_playerPos.getX();
-	const int playerY = m_playerPos.getY();
+	const int playerX = m_player->pos.getX();
+	const int playerY = m_player->pos.getY();
 	if (direction == 'w')
 	{
-		if (playerY >= 1 && !getField(Vector2D(playerX, playerY - 1))->isBlocking())
+		if (playerY >= 1)
 		{
-			movement.setY(-1);
+			m_player->move(Vector2D(playerX, playerY - 1));
 		}
 	}
 	else if (direction == 's')
 	{
-		if (playerY <= m_map.size() && !getField(Vector2D(playerX, playerY + 1))->isBlocking())
+		if (playerY <= m_map.size())
 		{
-			movement.setY(1);
+			m_player->move(Vector2D(playerX, playerY + 1));
 		}
 	}
 	else if (direction == 'a')
 	{
-		if (playerX >= 1 && !getField(Vector2D(playerX - 1, playerY))->isBlocking())
+		if (playerX >= 1)
 		{
-			movement.setX(-1);
+			m_player->move(Vector2D(playerX - 1, playerY));
 		}
 	}
 	else if (direction == 'd')
 	{
-		if (playerX <= m_map.size() && !getField(Vector2D(playerX + 1, playerY))->isBlocking())
+		if (playerX <= m_map.size())
 		{
-			movement.setX(1);
+			m_player->move(Vector2D(playerX + 1, playerY));
 		}
 	}
-	const Vector2D postMove = Vector2D(playerX + movement.getX(), playerY + movement.getY());
-	ITile* nextField = getField(postMove);
+	ITile* nextField = getField(m_player->pos);
 	if (nextField->isGoal())
 	{
 		return true;
-	}
-	else if (!nextField->isBlocking())
-	{
-		m_playerPos += movement;
 	}
 	return false;
 }
@@ -67,6 +61,7 @@ ITile* Board::getField(Vector2D position)
 Board::Board()
 {
 	m_map = Util::loadBoard("board.txt");
+	m_player = UniquePtr<Player>(new Player(SharedPtr<Board>(this), Vector2D(1, 1)));
 }
 
 Board::~Board()
@@ -91,7 +86,7 @@ void Board::render()
 		{
 			for (int x = 0; x < m_map[y].size(); x++)
 			{
-				if (m_playerPos.getX() == x && m_playerPos.getY() == y)
+				if (m_player->pos.getX() == x && m_player->pos.getY() == y)
 				{
 					cout << 'X';
 				}
@@ -104,7 +99,7 @@ void Board::render()
 		}
 		cout << endl;
 		cout << "Move with w, a, s, d (up, left, down, right). Exit with 0!" << endl;
-		cout << m_playerPos.getX() << m_playerPos.getY() << endl;
+		cout << m_player->pos.getX() << m_player->pos.getY() << endl;
 		char state = _getch();
 		if (state == '0')
 		{

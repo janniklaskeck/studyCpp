@@ -1,11 +1,5 @@
 #pragma once
 
-#include <iostream>
-
-#define PRINT(msg) std::cout << msg << std::endl;
-#define PRINTARRAY(array, length) \
-for(int i = 0; i < length; i++) \
-    PRINT(array[i]);
 class IntArray
 {
 public:
