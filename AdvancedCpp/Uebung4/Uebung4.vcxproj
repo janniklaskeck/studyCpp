@@ -126,6 +126,7 @@
     <ClInclude Include="Board.h" />
     <ClInclude Include="Freespace.h" />
     <ClInclude Include="Goal.h" />
+    <ClInclude Include="ITile.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="SharedPtr.h" />
     <ClInclude Include="UniquePtr.h" />

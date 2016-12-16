@@ -40,7 +40,7 @@ bool Board::move(const char direction)
 			m_player->move(Vector2D(playerX + 1, playerY));
 		}
 	}
-	ITile* nextField = getField(m_player->pos);
+	SharedPtr<ITile> nextField = getField(m_player->pos);
 	if (nextField->isGoal())
 	{
 		return true;
@@ -48,14 +48,14 @@ bool Board::move(const char direction)
 	return false;
 }
 
-ITile* Board::getField(Vector2D position)
+SharedPtr<ITile> Board::getField(Vector2D position)
 {
 	const size_t mapSize = m_map.size();
 	if (position.getX() >= 0 && position.getX() < mapSize && position.getY() >= 0 && position.getY() < mapSize)
 	{
 		return m_map[position.getY()][position.getX()];
 	}
-	return new Wall;
+	return nullptr;
 }
 
 Board::Board()
@@ -66,13 +66,6 @@ Board::Board()
 
 Board::~Board()
 {
-	for (int x = 0; x < m_map.size(); x++)
-	{
-		for (int y = 0; y < m_map[x].size(); y++)
-		{
-			delete m_map[x][y];
-		}
-	}
 }
 
 void Board::render()

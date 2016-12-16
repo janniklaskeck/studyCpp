@@ -1,7 +1,8 @@
 #include "Wall.h"
 
-Wall::Wall()
+Wall::Wall(Vector2D pos)
 {
+	this->pos = pos;
 	displayChar = 'W';
 }
 

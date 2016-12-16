@@ -7,11 +7,11 @@
 #include "Freespace.h"
 #include "Goal.h"
 
-std::vector<std::vector<ITile*>> Util::loadBoard(char* fileName)
+std::vector<std::vector<SharedPtr<ITile>>> Util::loadBoard(char* fileName)
 {
 	std::ifstream stream(fileName, std::ios::in);
 
-	std::vector<std::vector<ITile*>> board;
+	std::vector<std::vector<SharedPtr<ITile>>> board;
 
 	size_t boardSize = 0;
 	int lineNumber = 0;
@@ -28,16 +28,16 @@ std::vector<std::vector<ITile*>> Util::loadBoard(char* fileName)
 			board[lineNumber].resize(10);
 			if (line[i] == 'W')
 			{
-				board[lineNumber][i] = new Wall;
+				board[lineNumber][i] = SharedPtr<ITile>(new Wall(Vector2D(i, lineNumber)));
 			}
 			else if (line[i] == 'G')
 			{
-				board[lineNumber][i] = new Goal;
+				board[lineNumber][i] = SharedPtr<ITile>(new Goal(Vector2D(i, lineNumber)));
 
 			}
 			else
 			{
-				board[lineNumber][i] = new Freespace;
+				board[lineNumber][i] = SharedPtr<ITile>(new Freespace(Vector2D(i, lineNumber)));
 			}
 
 		}

@@ -1,9 +1,8 @@
 #include "Freespace.h"
 
-
-
-Freespace::Freespace()
+Freespace::Freespace(Vector2D pos)
 {
+	this->pos = pos;
 	displayChar = '0';
 }
 

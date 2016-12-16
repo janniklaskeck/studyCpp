@@ -4,7 +4,7 @@
 class Freespace : public ITile
 {
 public:
-	Freespace();
+	Freespace(Vector2D pos);
 	~Freespace();
 
 	virtual bool isBlocking() override;

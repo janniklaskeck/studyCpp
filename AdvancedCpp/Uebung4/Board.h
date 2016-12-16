@@ -6,11 +6,12 @@
 #include "ITile.h"
 #include "Player.h"
 #include "UniquePtr.h"
+#include "SharedPtr.h"
 
 class Board {
 
 private:
-    std::vector<std::vector<ITile*>> m_map;
+    std::vector<std::vector<SharedPtr<ITile>>> m_map;
 	UniquePtr<Player> m_player;
 
     bool move(const char direction);
@@ -18,7 +19,7 @@ private:
 public:
     Board();
     ~Board();
-    ITile* getField(const Vector2D position);
+    SharedPtr<ITile> getField(const Vector2D position);
 
     void render();
 };

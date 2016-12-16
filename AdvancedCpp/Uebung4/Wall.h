@@ -5,7 +5,7 @@ class Wall : public ITile
 {
 
 public:
-	Wall();
+	Wall(Vector2D pos);
 	~Wall();
 
 	virtual bool isBlocking() override;

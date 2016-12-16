@@ -17,11 +17,12 @@ class SharedPtr
 		if (m_count == 0)
 		{
 			delete m_ptr;
+			delete m_count;
 		}
 	};
 public:
 
-	SharedPtr() : m_ptr(nullptr), m_count(nullptr) {};
+	SharedPtr() : m_ptr(nullptr), m_count(new unsigned int(0)) {};
 
 	SharedPtr(T* ptr) : m_ptr(ptr), m_count(new unsigned int(1))
 	{
@@ -70,7 +71,7 @@ public:
 			other.m_count = nullptr;
 			other.m_ptr = nullptr;
 		}
-		return this;
+		return *this;
 	};
 
 	bool operator==(SharedPtr<T> other)

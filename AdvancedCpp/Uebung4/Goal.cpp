@@ -1,9 +1,8 @@
 #include "Goal.h"
 
-
-
-Goal::Goal()
+Goal::Goal(Vector2D pos)
 {
+	this->pos = pos;
 	displayChar = 'G';
 }
 

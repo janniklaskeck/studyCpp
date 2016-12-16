@@ -4,7 +4,7 @@
 class Goal : public ITile
 {
 public:
-	Goal();
+	Goal(Vector2D pos);
 	~Goal();
 
 	virtual bool isBlocking() override;
