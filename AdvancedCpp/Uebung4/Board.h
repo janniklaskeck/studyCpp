@@ -8,19 +8,22 @@
 #include "UniquePtr.h"
 #include "SharedPtr.h"
 
-class Board {
+class Board
+{
 
 private:
-    std::vector<std::vector<SharedPtr<ITile>>> m_map;
+	std::vector<std::vector<SharedPtr<ITile>>> m_map;
 	UniquePtr<Player> m_player;
 
-    bool move(const char direction);
+	bool move(const char direction);
 
 public:
-    Board();
-    ~Board();
-    SharedPtr<ITile> getField(const Vector2D position);
+	Board();
+	~Board()
+	{
+	};
+	SharedPtr<ITile> getField(const Vector2D position);
 
-    void render();
+	void render();
 };
 

@@ -33,7 +33,6 @@ std::vector<std::vector<SharedPtr<ITile>>> Util::loadBoard(char* fileName)
 			else if (line[i] == 'G')
 			{
 				board[lineNumber][i] = SharedPtr<ITile>(new Goal(Vector2D(i, lineNumber)));
-
 			}
 			else
 			{

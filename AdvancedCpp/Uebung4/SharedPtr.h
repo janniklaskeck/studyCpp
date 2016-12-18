@@ -1,10 +1,12 @@
 #pragma once
 
+#include <iostream>
+
 template<typename T>
 class SharedPtr
 {
 	T* m_ptr = nullptr;
-	unsigned int* m_count = nullptr;
+	unsigned int* m_count;
 
 	void increment()
 	{
@@ -13,8 +15,12 @@ class SharedPtr
 
 	void decrement()
 	{
-		(*m_count)--;
-		if (m_count == 0)
+		if (m_count && --(*m_count) == 0)
+		{
+			delete m_ptr;
+			delete m_count;
+		}
+		else if (!m_count) 
 		{
 			delete m_ptr;
 			delete m_count;
@@ -22,9 +28,11 @@ class SharedPtr
 	};
 public:
 
-	SharedPtr() : m_ptr(nullptr), m_count(new unsigned int(0)) {};
+	SharedPtr() : m_ptr(nullptr), m_count(new unsigned int(1))
+	{
+	};
 
-	SharedPtr(T* ptr) : m_ptr(ptr), m_count(new unsigned int(1))
+	SharedPtr(T* ptr) :  m_ptr(ptr), m_count(new unsigned int(1))
 	{
 	};
 
@@ -84,7 +92,7 @@ public:
 		return m_ptr;
 	};
 
-	T& operator->() const
+	T& operator*() const
 	{
 		return *m_ptr;
 	};

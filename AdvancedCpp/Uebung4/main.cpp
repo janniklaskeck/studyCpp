@@ -3,8 +3,10 @@
 
 int main()
 {
+	{
+		Board board;
+		board.render();
+	}
 
-	Board board;
-	board.render();
 	return 0;
 }

@@ -64,10 +64,6 @@ Board::Board()
 	m_player = UniquePtr<Player>(new Player(SharedPtr<Board>(this), Vector2D(1, 1)));
 }
 
-Board::~Board()
-{
-}
-
 void Board::render()
 {
 	using namespace std;

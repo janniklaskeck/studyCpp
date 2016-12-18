@@ -8,7 +8,7 @@ class Player
 {
 private:
 
-	SharedPtr<Board> m_board;
+	//SharedPtr<Board> m_board;
 
 public:
 

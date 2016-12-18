@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 
 template<typename T>
 class UniquePtr
@@ -30,6 +31,7 @@ public:
 	UniquePtr(T* ptr) : m_ptr(ptr) {};
 	~UniquePtr()
 	{
+		std::cout << "delete player" << std::endl;
 		delete m_ptr;
 	};
 
@@ -43,7 +45,7 @@ public:
 		return m_ptr;
 	};
 
-	T& operator->() const
+	T& operator*() const
 	{
 		return *m_ptr;
 	};
