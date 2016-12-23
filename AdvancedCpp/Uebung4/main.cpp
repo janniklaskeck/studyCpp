@@ -6,7 +6,7 @@ void printDynamicArray(DynamicArray<float>& dynArr)
 {
 	for (int i = 0; i < dynArr.getLength(); i++)
 	{
-		std::cout << "Element " << i << ":" << dynArr[i] << " Array Length: " << dynArr.getLength() << std::endl;
+		std::cout << "Element " << i << ":" << dynArr[i] << " Array Length: " << dynArr.getLength() << " Reserved Length: " << dynArr.getReservedLength() << std::endl;
 	}
 }
 
@@ -37,7 +37,14 @@ int main()
 	da1.add(7.0f);
 
 	printDynamicArray(da1);
+	std::cout << "\n";
+	da1.remove(3);
 
+	printDynamicArray(da1);
+	std::cout << "\n";
+	da1.remove(1.0f);
+
+	printDynamicArray(da1);
 	char tmp;
 	std::cin >> tmp;
 	return 0;

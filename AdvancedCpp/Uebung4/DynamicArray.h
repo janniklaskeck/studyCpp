@@ -37,6 +37,31 @@ class DynamicArray
 		}
 	};
 
+	void stackUp(int index)
+	{
+		T* buffer = new T[m_length - 1];
+		int srcIndex = 0;
+		int targetIndex = 0;
+		while (srcIndex < m_length)
+		{
+			if (srcIndex != index)
+			{
+				buffer[targetIndex] = m_data[srcIndex];
+				++srcIndex;
+				++targetIndex;
+			}
+			else if (srcIndex == index)
+			{
+				++srcIndex;
+			}
+		}
+		for (int i = 0; i < m_length - 1; i++)
+		{
+			m_data[i] = buffer[i];
+		}
+		delete buffer;
+	};
+
 public:
 	DynamicArray() : m_data(new T[m_defaultSize]), m_reservedSize(m_defaultSize)
 	{
@@ -82,6 +107,11 @@ public:
 		return m_length;
 	};
 
+	int getReservedLength() const
+	{
+		return m_reservedSize;
+	};
+
 	void add(const T toAdd)
 	{
 		std::cout << "Add element" << toAdd << std::endl;
@@ -99,17 +129,23 @@ public:
 		{
 			return;
 		}
-		if (index == m_length - 1)
+		if (index != m_length - 1)
 		{
-
+			stackUp(index);
 		}
 		--m_length;
 	};
 
 	void remove(const T element)
 	{
-
-		--m_length;
+		for (int index = 0; index < m_length; index++)
+		{
+			if (m_data[index] == element)
+			{
+				remove(index);
+				return;
+			}
+		}
 	};
 
 	void reserveSpace(int elements = 10)
@@ -131,6 +167,7 @@ public:
 			m_data[i] = buffer[i];
 		}
 		m_reservedSize = newReservedSize;
+		delete buffer;
 	};
 
 	~DynamicArray()
