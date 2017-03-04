@@ -9,10 +9,18 @@ void GameObject::Register(World* GameWorld)
 	this->GameWorld = GameWorld;
 }
 
-
-
 void GameObject::Update()
 {
+	while (!MessageQueue.empty())
+	{
+		Message Msg = MessageQueue.back();
+		MessageQueue.pop();
+		for (int i = 0; i < Components.size(); i++)
+		{
+			Component* Comp = Components[i].get();
+			Comp->ProcessMessage(Msg);
+		}
+	}
 	for (int i = 0; i < Components.size(); i++)
 	{
 		Component* Comp = Components[i].get();
@@ -24,10 +32,9 @@ void GameObject::Update()
 	}
 }
 
-GameObject::GameObject(int ID) : ID(ID)
+GameObject::GameObject(int _ID) : ID(_ID)
 {
 }
-
 
 GameObject::~GameObject()
 {
@@ -79,4 +86,9 @@ InputComponent* GameObject::GetInputComponent() const
 		}
 	}
 	return nullptr;
+}
+
+void GameObject::Broadcast(Message& Msg)
+{
+	MessageQueue.push(Msg);
 }

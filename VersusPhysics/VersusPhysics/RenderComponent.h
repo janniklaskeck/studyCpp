@@ -1,14 +1,32 @@
 #pragma once
 #include "Component.h"
 #include "PhysicsComponent.h"
+#include "Message.h"
+#include "ChangePositionMessage.h"
 
 #include <SFML/Graphics.hpp>
 
-enum Shape
+enum ShapeType
 {
 	NONE,
 	BOX,
 	CIRCLE
+};
+
+struct Shape
+{
+	float SizeX;
+	float SizeY;
+	float Radius;
+	ShapeType Type;
+	Shape(ShapeType _Type, float _SizeX, float _SizeY, float _Radius) :
+		SizeX(_SizeX), SizeY(_SizeY), Radius(_Radius), Type(_Type)
+	{
+	}
+	Shape() :
+		SizeX(0), SizeY(0), Radius(0), Type(NONE)
+	{
+	}
 };
 
 class RenderComponent : public Component
@@ -22,27 +40,27 @@ public:
 
 	void Render(sf::RenderWindow* Window)
 	{
-		float Width = Parent->GetPhyicsComponent()->GetSize().x;
-		float Height = Parent->GetPhyicsComponent()->GetSize().y;
-		if (m_Shape == BOX)
+		float Width = m_Shape.SizeX;
+		float Height = m_Shape.SizeY;
+		if (m_Shape.Type == BOX)
 		{
 			m_RenderShape = std::make_unique<sf::RectangleShape>(sf::Vector2f(Width, Height));
 			m_RenderShape->setFillColor(sf::Color(255, 0, 0));
 		}
-		else if (m_Shape == CIRCLE)
+		else if (m_Shape.Type == CIRCLE)
 		{
 			m_RenderShape = std::make_unique<sf::CircleShape>(Width);
 			m_RenderShape->setFillColor(sf::Color(255, 0, 0));
 		}
 
-		if (m_Shape == NONE)
+		if (m_Shape.Type == NONE)
 		{
-			Sprite->setPosition(Parent->GetPhyicsComponent()->GetPosition());
+			Sprite->setPosition(Position);
 			Window->draw(*Sprite.get());
 		}
 		else
 		{
-			m_RenderShape->setPosition(Parent->GetPhyicsComponent()->GetPosition());
+			m_RenderShape->setPosition(Position);
 			Window->draw(*m_RenderShape.get());
 		}
 	}
@@ -57,8 +75,19 @@ public:
 	{
 		Sprite = std::make_unique<sf::Sprite>(*Texture.get());
 	}
+
+	void ProcessMessage(Message Msg)
+	{
+		if (MessageManager::GetTypeID(ChangePositionMessage::TYPE_NAME) == Msg.TypeID)
+		{
+			Position = Msg.VectorPayload;
+		}
+	};
+
 private:
 	std::shared_ptr<sf::Texture> Texture;
 	std::unique_ptr<sf::Shape> m_RenderShape;
-	Shape m_Shape = NONE;
+	Shape m_Shape;
+
+	sf::Vector2f Position;
 };

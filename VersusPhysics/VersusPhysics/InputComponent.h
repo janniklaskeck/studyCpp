@@ -3,7 +3,7 @@
 #include "PhysicsComponent.h"
 #include "InputManager.h"
 #include "Constants.h"
-
+#include "Message.h"
 class InputComponent : public Component
 {
 public:
@@ -19,6 +19,8 @@ public:
 	bool MoveRight = false;
 	bool MoveLeft = false;
 	bool MoveJump = false;
+
+	void ProcessMessage(Message Msg) {};
 
 private:
 

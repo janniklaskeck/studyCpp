@@ -1,8 +1,10 @@
 #pragma once
 #include "Component.h"
+#include "Message.h"
 
 #include <memory>
 #include <vector>
+#include <queue>
 
 class World;
 class PhysicsComponent;
@@ -31,9 +33,12 @@ public:
 	RenderComponent* GetRenderComponent() const;
 	InputComponent* GetInputComponent() const;
 
+	void Broadcast(Message& Msg);
+
 	int ID;
 private:
 	std::vector<std::unique_ptr<Component>> Components;
 	World* GameWorld;
+	std::queue<Message> MessageQueue;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 class GameObject;
+struct Message;
 
 class Component
 {
@@ -11,6 +12,8 @@ public:
 	virtual void Update()
 	{
 	};
+
+	virtual void ProcessMessage(Message Msg) = 0;
 
 	virtual ~Component()
 	{

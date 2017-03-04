@@ -61,6 +61,18 @@
     <Filter Include="Source Files\Engine\GameObject">
       <UniqueIdentifier>{6c644e10-f65f-4328-a7ed-6acf95a14ad5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\Messages">
+      <UniqueIdentifier>{bd26ad34-6b1e-4df3-b716-45e227291f40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Messages">
+      <UniqueIdentifier>{4a8b83f5-5766-4d82-8fe4-773a1420cba5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Physics\Messages">
+      <UniqueIdentifier>{f75473fb-2114-40f1-9a95-ea85fe5ed61e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Physics\Messages">
+      <UniqueIdentifier>{b5c4de53-d1cc-4136-a49e-8cf6a69c8dba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -98,6 +110,12 @@
     </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Message.cpp">
+      <Filter>Source Files\Engine\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangePositionMessage.cpp">
+      <Filter>Source Files\Engine\Physics\Messages</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +166,12 @@
     </ClInclude>
     <ClInclude Include="Constants.h">
       <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Message.h">
+      <Filter>Header Files\Engine\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangePositionMessage.h">
+      <Filter>Header Files\Engine\Physics\Messages</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

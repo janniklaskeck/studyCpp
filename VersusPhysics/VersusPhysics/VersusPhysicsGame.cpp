@@ -117,6 +117,7 @@ std::shared_ptr<GameObject> VersusPhysicsGame::BuildStaticBox(glm::vec2 Pos, glm
 	Description.Size = sf::Vector2f(Size.x, Size.y);
 	PhysicsState State(sf::Vector2f(Pos.x, Pos.y), sf::Vector2f());
 	Bottom->AddComponent(new PhysicsComponent(State, Description));
-	Bottom->AddComponent(new RenderComponent(BOX));
+	Shape Box(BOX, Size.x, Size.y, 0);
+	Bottom->AddComponent(new RenderComponent(Box));
 	return Bottom;
 }

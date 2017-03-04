@@ -1,4 +1,5 @@
 #include "PhysicsComponent.h"
+#include "ChangePositionMessage.h"
 #include <stdio.h>
 #include <glm/glm.hpp>
 #include "Application.h"
@@ -9,6 +10,14 @@ void PhysicsComponent::Update()
 	{
 		Move();
 	}
+	Parent->Broadcast(ChangePositionMessage::Create(State.Position));
+
+}
+
+void PhysicsComponent::ProcessMessage(Message Msg)
+{
+
+
 }
 
 void PhysicsComponent::Move()
@@ -66,7 +75,7 @@ sf::Vector2f PhysicsComponent::GetOverlapVector(PhysicsComponent* PhysComp)
 	float Top = PhysComp->GetPosition().y - (GetPosition().y + GetSize().y);
 	float Bottom = (PhysComp->GetPosition().y + PhysComp->GetSize().y) - GetPosition().y;
 
-	if (Left > 0 ||Right < 0 || Top > 0 || Bottom < 0)
+	if (Left > 0 || Right < 0 || Top > 0 || Bottom < 0)
 	{
 		return OverlapVector;
 	}

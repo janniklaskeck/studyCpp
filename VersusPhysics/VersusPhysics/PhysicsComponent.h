@@ -33,6 +33,8 @@ public:
 		return State.Position + (Description.Size * 0.5f);
 	}
 
+	void ProcessMessage(Message Msg);
+
 	PhysicsState State;
 private:
 	PhysicsDescription Description;

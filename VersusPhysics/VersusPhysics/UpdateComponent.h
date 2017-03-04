@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "Message.h"
 
 #include <functional>
 
@@ -13,6 +14,8 @@ public:
 
 	UpdateComponent(const UpdateCallback& Callback);
 	~UpdateComponent();
+
+	void ProcessMessage(Message Msg) {};
 
 private:
 	UpdateCallback Callback;
