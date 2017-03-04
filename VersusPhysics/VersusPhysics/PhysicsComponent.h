@@ -10,9 +10,9 @@ class PhysicsComponent : public Component
 {
 public:
 
-	PhysicsComponent(PhysicsState State, PhysicsDescription Description) :
-		State(State),
-		Description(Description)
+	PhysicsComponent(PhysicsState _State, PhysicsDescription _Description) :
+		State(_State),
+		Description(_Description)
 	{
 	}
 

@@ -1,5 +1,6 @@
 #include "PhysicsComponent.h"
 #include "ChangePositionMessage.h"
+#include "InputChangeMessage.hpp"
 #include <stdio.h>
 #include <glm/glm.hpp>
 #include "Application.h"
@@ -16,7 +17,27 @@ void PhysicsComponent::Update()
 
 void PhysicsComponent::ProcessMessage(Message Msg)
 {
-
+	if (Msg.TypeID == MessageType::INPUT_CHANGE)
+	{
+		InputState _InputState = Msg.InputPayload;
+		float Speed = 100.0f;
+		if (_InputState.MoveUp)
+		{
+			State.Velocity.y = -45.0f;
+		}
+		if (_InputState.MoveDown)
+		{
+			State.Velocity.y = 35.0f;
+		}
+		if (_InputState.MoveRight)
+		{
+			State.Velocity.x = 35.0f;
+		}
+		if (_InputState.MoveLeft)
+		{
+			State.Velocity.x = -35.0f;
+		}
+	}
 
 }
 
@@ -61,7 +82,7 @@ bool PhysicsComponent::IntersectsWith(PhysicsComponent* Other)
 	float sumx = (GetSize().x * 0.5f) + (Other->GetSize().x * 0.5f);
 
 	float ly = glm::abs(GetCenter().y - Other->GetCenter().y);
-	float sumy = (GetSize().y / 2.0f) + (Other->GetSize().y / 2.0f);
+	float sumy = (GetSize().y* 0.5f) + (Other->GetSize().y * 0.5f);
 
 	return (lx <= sumx && ly <= sumy);
 }

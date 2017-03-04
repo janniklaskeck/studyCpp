@@ -2,7 +2,6 @@
 #include "Component.h"
 #include "PhysicsComponent.h"
 #include "Message.h"
-#include "ChangePositionMessage.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -34,55 +33,15 @@ class RenderComponent : public Component
 public:
 
 	std::unique_ptr<sf::Sprite> Sprite;
-	virtual void Update() override
-	{
-	}
+	virtual void Update() override;
 
-	void Render(sf::RenderWindow* Window)
-	{
-		float Width = m_Shape.SizeX;
-		float Height = m_Shape.SizeY;
-		if (m_Shape.Type == BOX)
-		{
-			m_RenderShape = std::make_unique<sf::RectangleShape>(sf::Vector2f(Width, Height));
-			m_RenderShape->setFillColor(sf::Color(255, 0, 0));
-		}
-		else if (m_Shape.Type == CIRCLE)
-		{
-			m_RenderShape = std::make_unique<sf::CircleShape>(Width);
-			m_RenderShape->setFillColor(sf::Color(255, 0, 0));
-		}
+	void Render(sf::RenderWindow* Window);
 
-		if (m_Shape.Type == NONE)
-		{
-			Sprite->setPosition(Position);
-			Window->draw(*Sprite.get());
-		}
-		else
-		{
-			m_RenderShape->setPosition(Position);
-			Window->draw(*m_RenderShape.get());
-		}
-	}
+	RenderComponent(Shape PrimitiveShape);
 
-	RenderComponent(Shape PrimitiveShape) :
-		m_Shape(PrimitiveShape)
-	{
-	}
+	RenderComponent(std::shared_ptr<sf::Texture> Texture);
 
-	RenderComponent(std::shared_ptr<sf::Texture> Texture) :
-		Texture(Texture)
-	{
-		Sprite = std::make_unique<sf::Sprite>(*Texture.get());
-	}
-
-	void ProcessMessage(Message Msg)
-	{
-		if (MessageManager::GetTypeID(ChangePositionMessage::TYPE_NAME) == Msg.TypeID)
-		{
-			Position = Msg.VectorPayload;
-		}
-	};
+	virtual void ProcessMessage(Message Msg);
 
 private:
 	std::shared_ptr<sf::Texture> Texture;

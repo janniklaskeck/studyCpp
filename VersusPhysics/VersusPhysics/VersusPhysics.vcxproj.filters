@@ -73,6 +73,18 @@
     <Filter Include="Source Files\Engine\Physics\Messages">
       <UniqueIdentifier>{b5c4de53-d1cc-4136-a49e-8cf6a69c8dba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Engine\Input\Message">
+      <UniqueIdentifier>{49561eb6-1f25-4040-aa9c-2270be377f29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Input\Message">
+      <UniqueIdentifier>{690a5491-14c4-4da3-b303-3fd89667f132}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Renderer\Message">
+      <UniqueIdentifier>{46c36f08-0a8c-4a17-82ca-fa180b445755}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Renderer\Message">
+      <UniqueIdentifier>{a9cf3239-eb11-4ed9-916b-ab4f058e6997}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -116,6 +128,15 @@
     </ClCompile>
     <ClCompile Include="ChangePositionMessage.cpp">
       <Filter>Source Files\Engine\Physics\Messages</Filter>
+    </ClCompile>
+    <ClCompile Include="InputChangeMessage.cpp">
+      <Filter>Source Files\Engine\Input\Message</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderComponent.cpp">
+      <Filter>Source Files\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderMessage.cpp">
+      <Filter>Source Files\Engine\Renderer\Message</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +193,15 @@
     </ClInclude>
     <ClInclude Include="ChangePositionMessage.h">
       <Filter>Header Files\Engine\Physics\Messages</Filter>
+    </ClInclude>
+    <ClInclude Include="InputChangeMessage.hpp">
+      <Filter>Header Files\Engine\Input\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="InputState.hpp">
+      <Filter>Header Files\Engine\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderMessage.hpp">
+      <Filter>Header Files\Engine\Renderer\Message</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

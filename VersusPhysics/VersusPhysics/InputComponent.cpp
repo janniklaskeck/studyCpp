@@ -1,4 +1,5 @@
 #include "InputComponent.h"
+#include "InputChangeMessage.hpp"
 
 InputComponent::InputComponent(sf::Keyboard::Key UpKey,
 							   sf::Keyboard::Key DownKey,
@@ -13,27 +14,37 @@ InputComponent::InputComponent(sf::Keyboard::Key UpKey,
 {
 	KeyCallback MoveUpIsPressed = [&](bool IsPressed)
 	{
-		MoveUp = IsPressed;
+		State.MoveUp = IsPressed;
 	};
 	KeyCallback MoveDownIsPressed = [&](bool IsPressed)
 	{
-		MoveDown = IsPressed;
+		State.MoveDown = IsPressed;
 	};
 	KeyCallback MoveRightIsPressed = [&](bool IsPressed)
 	{
-		MoveRight = IsPressed;
+		State.MoveRight = IsPressed;
 	};
 	KeyCallback MoveLeftIsPressed = [&](bool IsPressed)
 	{
-		MoveLeft = IsPressed;
+		State.MoveLeft = IsPressed;
 	};
 	KeyCallback MoveJumpIsPressed = [&](bool IsPressed)
 	{
-		MoveJump = IsPressed;
+		State.MoveJump = IsPressed;
 	};
 	InputManager::AddKeyCallback(UpKey, MoveUpIsPressed);
 	InputManager::AddKeyCallback(DownKey, MoveDownIsPressed);
 	InputManager::AddKeyCallback(RightKey, MoveRightIsPressed);
 	InputManager::AddKeyCallback(LeftKey, MoveLeftIsPressed);
 	InputManager::AddKeyCallback(JumpKey, MoveJumpIsPressed);
+}
+
+void InputComponent::ProcessMessage(Message Msg)
+{
+
+}
+
+void InputComponent::Update()
+{
+	Parent->Broadcast(InputChangeMessage::Create(State));
 }

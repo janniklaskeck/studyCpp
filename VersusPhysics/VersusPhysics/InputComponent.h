@@ -1,9 +1,11 @@
 #pragma once
 #include "Component.h"
 #include "PhysicsComponent.h"
+#include "InputState.hpp"
 #include "InputManager.h"
 #include "Constants.h"
 #include "Message.h"
+
 class InputComponent : public Component
 {
 public:
@@ -14,13 +16,11 @@ public:
 				   sf::Keyboard::Key LeftKey,
 				   sf::Keyboard::Key JumpKey);
 
-	bool MoveUp = false;
-	bool MoveDown = false;
-	bool MoveRight = false;
-	bool MoveLeft = false;
-	bool MoveJump = false;
+	InputState State;
 
-	void ProcessMessage(Message Msg) {};
+	virtual void ProcessMessage(Message Msg);
+
+	virtual void Update();
 
 private:
 

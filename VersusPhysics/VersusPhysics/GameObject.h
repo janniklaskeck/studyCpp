@@ -17,6 +17,8 @@ public:
 
 	void Register(World* GameWorld);
 
+	void Init();
+
 	void Update();
 
 	GameObject(int ID);
@@ -28,11 +30,7 @@ public:
 	{
 		return GameWorld;
 	}
-
 	PhysicsComponent* GetPhyicsComponent() const;
-	RenderComponent* GetRenderComponent() const;
-	InputComponent* GetInputComponent() const;
-
 	void Broadcast(Message& Msg);
 
 	int ID;

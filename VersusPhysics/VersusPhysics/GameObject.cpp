@@ -9,6 +9,15 @@ void GameObject::Register(World* GameWorld)
 	this->GameWorld = GameWorld;
 }
 
+void GameObject::Init()
+{
+	for (int i = 0; i < Components.size(); i++)
+	{
+		Component* Comp = Components[i].get();
+		Comp->Update();
+	}
+}
+
 void GameObject::Update()
 {
 	while (!MessageQueue.empty())
@@ -24,26 +33,8 @@ void GameObject::Update()
 	for (int i = 0; i < Components.size(); i++)
 	{
 		Component* Comp = Components[i].get();
-		RenderComponent* RenderComp = dynamic_cast<RenderComponent*>(Comp);
-		if (!RenderComp)
-		{
-			Comp->Update();
-		}
+		Comp->Update();
 	}
-}
-
-GameObject::GameObject(int _ID) : ID(_ID)
-{
-}
-
-GameObject::~GameObject()
-{
-}
-
-void GameObject::AddComponent(Component* NewComponent)
-{
-	Components.push_back(std::unique_ptr<Component>(NewComponent));
-	NewComponent->Register(this);
 }
 
 PhysicsComponent* GameObject::GetPhyicsComponent() const
@@ -60,32 +51,18 @@ PhysicsComponent* GameObject::GetPhyicsComponent() const
 	return nullptr;
 }
 
-RenderComponent* GameObject::GetRenderComponent() const
+GameObject::GameObject(int _ID) : ID(_ID)
 {
-	for (int i = 0; i < Components.size(); i++)
-	{
-		Component* Comp = Components[i].get();
-		RenderComponent* PhysComp = dynamic_cast<RenderComponent*>(Comp);
-		if (PhysComp)
-		{
-			return PhysComp;
-		}
-	}
-	return nullptr;
 }
 
-InputComponent* GameObject::GetInputComponent() const
+GameObject::~GameObject()
 {
-	for (int i = 0; i < Components.size(); i++)
-	{
-		Component* Comp = Components[i].get();
-		InputComponent* PhysComp = dynamic_cast<InputComponent*>(Comp);
-		if (PhysComp)
-		{
-			return PhysComp;
-		}
-	}
-	return nullptr;
+}
+
+void GameObject::AddComponent(Component* NewComponent)
+{
+	Components.push_back(std::unique_ptr<Component>(NewComponent));
+	NewComponent->Register(this);
 }
 
 void GameObject::Broadcast(Message& Msg)

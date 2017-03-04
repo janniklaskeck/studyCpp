@@ -14,20 +14,20 @@ void Application::GameLoop()
 	while (m_Renderer.Window->isOpen())
 	{
 		sf::Time ElapsedTime = Clock.getElapsedTime();
-		sf::Event event;
-		while (m_Renderer.Window->pollEvent(event))
+		sf::Event Event;
+		while (m_Renderer.Window->pollEvent(Event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (Event.type == sf::Event::Closed)
 			{
 				m_Renderer.Window->close();
 			}
-			else if (event.type == sf::Event::KeyPressed)
+			else if (Event.type == sf::Event::KeyPressed)
 			{
-				InputManager::HandleDownEvent(event);
+				InputManager::HandleDownEvent(Event);
 			}
-			else if (event.type == sf::Event::KeyReleased)
+			else if (Event.type == sf::Event::KeyReleased)
 			{
-				InputManager::HandleUpEvent(event);
+				InputManager::HandleUpEvent(Event);
 			}
 		}
 		if (ElapsedTime.asMilliseconds() - GameWorld->GetElapsedTime() >= UPDATE_INTERVAL_MS)
@@ -35,6 +35,14 @@ void Application::GameLoop()
 			GameWorld->Update();
 			m_Renderer.Render(GameWorld->GetGameObjects());
 		}
+	}
+}
+
+void Application::Init()
+{
+	for (int Index = 0; Index < GameWorld->GetGameObjects().size(); Index++)
+	{
+		GameWorld->GetGameObjects()[Index]->Init();
 	}
 }
 

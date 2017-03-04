@@ -1,17 +1,15 @@
 #pragma once
 #include "Message.h"
 
-class ChangePositionMessage
+class RenderMessage
 {
 public:
-	ChangePositionMessage();
-	~ChangePositionMessage();
-
-	static Message Create(sf::Vector2f Position);
+	RenderMessage();
+	~RenderMessage();
+	static Message Create(sf::RenderWindow* Window);
 
 	static const std::string TYPE_NAME;
 
 private:
 	static const int MessageID;
 };
-

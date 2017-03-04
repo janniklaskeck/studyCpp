@@ -11,6 +11,7 @@ public:
 
 	void GameLoop();
 
+	void Init();
 	void Start();
 	void Stop();
 

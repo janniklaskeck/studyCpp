@@ -1,14 +1,26 @@
 #pragma once
 
+#include "InputState.hpp"
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <string>
 
+enum MessageType
+{
+	NOTHING,
+	INPUT_CHANGE,
+	POSITION_CHANGE,
+	DO_RENDER
+};
+
 struct Message
 {
-	int TypeID = 0;
+	MessageType TypeID = NOTHING;
 	union
 	{
+		sf::RenderWindow* WindowPtrPayload;
+		InputState InputPayload;
 		sf::Vector2f VectorPayload;
 	};
 	Message() {};

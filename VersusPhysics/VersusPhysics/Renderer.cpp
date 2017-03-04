@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include "RenderComponent.h"
-
+#include "RenderMessage.hpp"
 #include <stdio.h>
 
 bool Renderer::Init()
@@ -24,22 +24,18 @@ void Renderer::Shutdown()
 
 void Renderer::Render(std::vector<std::shared_ptr<GameObject>>& GameObjects)
 {
-	Window->clear();
-
+	Window->display();
+	
 	for (int i = 0; i < GameObjects.size(); i++)
 	{
 		GameObject* Object = GameObjects[i].get();
 		if (Object)
 		{
-			RenderComponent* RenderComp = Object->GetRenderComponent();
-			if (RenderComp)
-			{
-				RenderComp->Update();
-				RenderComp->Render(Window.get());
-			}
+			Object->Broadcast(RenderMessage::Create(Window.get()));
 		}
 	}
-	Window->display();
+	Window->clear();
+	
 }
 
 Renderer::Renderer()

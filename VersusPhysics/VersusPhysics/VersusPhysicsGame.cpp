@@ -25,6 +25,7 @@ void VersusPhysicsGame::Setup()
 
 void VersusPhysicsGame::Start()
 {
+	App->Init();
 	App->GameLoop();
 	App->Stop();
 }
@@ -46,7 +47,7 @@ void VersusPhysicsGame::CreatePlayers()
 
 	PlayerOne->AddComponent(new RenderComponent(ResourceManager::LoadTexture("Assets\\player1.png")));
 
-	sf::FloatRect Size = PlayerOne->GetRenderComponent()->Sprite->getLocalBounds();
+	sf::FloatRect Size(0.0f, 0.0f, 16.0f, 16.0f);
 
 	PhysicsDescription Description{};
 	Description.Mass = 1.0f;
@@ -55,55 +56,13 @@ void VersusPhysicsGame::CreatePlayers()
 	PhysicsState State_P1(sf::Vector2f(50, 600), sf::Vector2f());
 	PlayerOne->AddComponent(new PhysicsComponent(State_P1, Description));
 	PlayerOne->AddComponent(new InputComponent(sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::D, sf::Keyboard::A, sf::Keyboard::Space));
-	PlayerOne->AddComponent(new UpdateComponent([PlayerOne]()
-	{
-		float Speed = 100.0f;
-		PhysicsComponent* PhysicsComp = PlayerOne->GetPhyicsComponent();
-		InputComponent* InputComp = PlayerOne->GetInputComponent();
-		if (InputComp->MoveUp)
-		{
-			PhysicsComp->State.Velocity.y = -45.0f;
-		}
-		if (InputComp->MoveDown)
-		{
-			PhysicsComp->State.Velocity.y = 35.0f;
-		}
-		if (InputComp->MoveRight)
-		{
-			PhysicsComp->State.Velocity.x = 35.0f;
-		}
-		if (InputComp->MoveLeft)
-		{
-			PhysicsComp->State.Velocity.x = -35.0f;
-		}
-	}));
+
 
 	PhysicsState State_P2(sf::Vector2f(1000, 600), sf::Vector2f());
 	PlayerTwo->AddComponent(new RenderComponent(ResourceManager::LoadTexture("Assets\\player2.png")));
 	PlayerTwo->AddComponent(new PhysicsComponent(State_P2, Description));
 	PlayerTwo->AddComponent(new InputComponent(sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Right, sf::Keyboard::Left, sf::Keyboard::RControl));
-	PlayerTwo->AddComponent(new UpdateComponent([PlayerTwo]()
-	{
-		float Speed = 100.0f;
-		PhysicsComponent* PhysicsComp = PlayerTwo->GetPhyicsComponent();
-		InputComponent* InputComp = PlayerTwo->GetInputComponent();
-		if (InputComp->MoveUp)
-		{
-			PhysicsComp->State.Velocity.y = -45.0f;
-		}
-		if (InputComp->MoveDown)
-		{
-			PhysicsComp->State.Velocity.y = 35.0f;
-		}
-		if (InputComp->MoveRight)
-		{
-			PhysicsComp->State.Velocity.x = 35.0f;
-		}
-		if (InputComp->MoveLeft)
-		{
-			PhysicsComp->State.Velocity.x = -35.0f;
-		}
-	}));
+
 
 	App->GameWorld->AddGameObject(PlayerOne);
 	App->GameWorld->AddGameObject(PlayerTwo);
