@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Shape.hpp"
 
 enum PhysicsType
 {
@@ -11,8 +11,14 @@ struct PhysicsDescription
 {
 public:
 
+	PhysicsDescription()
+	{
+	}
+	~PhysicsDescription()
+	{
+	};
+
 	PhysicsType Type = STATIC;
 	float Mass = 1.0;
-	sf::Vector2f Size = sf::Vector2f(0.0f, 0.0f);
-
+	Shape PhysicsShape;
 };

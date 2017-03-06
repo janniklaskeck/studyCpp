@@ -1,18 +1,21 @@
+#include "Engine.hpp"
+
 #include "PhysicsComponent.h"
 #include "ChangePositionMessage.h"
 #include "InputChangeMessage.hpp"
+#include "Application.h"
+
 #include <stdio.h>
 #include <glm/glm.hpp>
-#include "Application.h"
 
 void PhysicsComponent::Update()
 {
 	if (Description.Type == DYNAMIC)
 	{
 		Move();
+		//LOG("Pos: %f | %f\n", State.Position.x, State.Position.y);
 	}
 	Parent->Broadcast(ChangePositionMessage::Create(State.Position));
-
 }
 
 void PhysicsComponent::ProcessMessage(Message Msg)
@@ -38,12 +41,11 @@ void PhysicsComponent::ProcessMessage(Message Msg)
 			State.Velocity.x = -35.0f;
 		}
 	}
-
 }
 
 void PhysicsComponent::Move()
 {
-	sf::Vector2f Forces(0, 10.0);
+	sf::Vector2f Forces(0, 10.0f);
 	sf::Vector2f Acceleration(Forces.x / Description.Mass, Forces.y / Description.Mass);
 	State.Velocity += Acceleration * UPDATE_INTERVAL_S;
 	State.Position += State.Velocity * UPDATE_INTERVAL_S;
@@ -77,24 +79,35 @@ void PhysicsComponent::CheckForCollisionAndResolve(World* GameWorld)
 
 bool PhysicsComponent::IntersectsWith(PhysicsComponent* Other)
 {
+	if (Description.PhysicsShape.Type == AABB)
+	{
+		float lx = glm::abs(GetCenterAABB().x - Other->GetCenterAABB().x);
+		float sumx = (Description.PhysicsShape.Size.x * 0.5f) + (Other->Description.PhysicsShape.Size.x * 0.5f);
 
-	float lx = glm::abs(GetCenter().x - Other->GetCenter().x);
-	float sumx = (GetSize().x * 0.5f) + (Other->GetSize().x * 0.5f);
+		float ly = glm::abs(GetCenterAABB().y - Other->GetCenterAABB().y);
+		float sumy = (Description.PhysicsShape.Size.y* 0.5f) + (Other->Description.PhysicsShape.Size.y * 0.5f);
 
-	float ly = glm::abs(GetCenter().y - Other->GetCenter().y);
-	float sumy = (GetSize().y* 0.5f) + (Other->GetSize().y * 0.5f);
-
-	return (lx <= sumx && ly <= sumy);
+		return (lx <= sumx && ly <= sumy);
+	}
+	else if (Description.PhysicsShape.Type == CIRCLE)
+	{
+		float Radii = (Description.PhysicsShape.Radius + Other->Description.PhysicsShape.Radius);
+		Radii *= Radii;
+		float PosX = State.Position.x + Other->State.Position.x;
+		float PosY = State.Position.y + Other->State.Position.y;
+		return Radii < (PosX*PosX) + (PosY*PosY);
+	}
+	return false;
 }
 
 sf::Vector2f PhysicsComponent::GetOverlapVector(PhysicsComponent* PhysComp)
 {
 	sf::Vector2f OverlapVector;
 
-	float Left = PhysComp->GetPosition().x - (GetPosition().x + GetSize().x);
-	float Right = (PhysComp->GetPosition().x + PhysComp->GetSize().x) - GetPosition().x;
-	float Top = PhysComp->GetPosition().y - (GetPosition().y + GetSize().y);
-	float Bottom = (PhysComp->GetPosition().y + PhysComp->GetSize().y) - GetPosition().y;
+	float Left = PhysComp->GetPosition().x - (GetPosition().x + Description.PhysicsShape.Size.x);
+	float Right = (PhysComp->GetPosition().x + PhysComp->Description.PhysicsShape.Size.x) - GetPosition().x;
+	float Top = PhysComp->GetPosition().y - (GetPosition().y + Description.PhysicsShape.Size.y);
+	float Bottom = (PhysComp->GetPosition().y + PhysComp->Description.PhysicsShape.Size.y) - GetPosition().y;
 
 	if (Left > 0 || Right < 0 || Top > 0 || Bottom < 0)
 	{

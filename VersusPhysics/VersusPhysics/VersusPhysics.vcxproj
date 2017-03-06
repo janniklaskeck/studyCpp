@@ -87,10 +87,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files\VulkanSDK\glm;C:\Workspace\SFML-2.4.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Vulkan\GLM;F:\Workspace\cppLibs\SFML-2.4.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Workspace\SFML-2.4.2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Workspace\cppLibs\SFML-2.4.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;sfml-graphics-d.lib;sfml-audio-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -128,12 +128,16 @@
     <ClCompile Include="ChangePositionMessage.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="InputChangeMessage.cpp" />
     <ClCompile Include="InputComponent.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="RenderComponent.cpp" />
+    <ClCompile Include="RenderDescription.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RenderMessage.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="UpdateComponent.cpp" />
     <ClCompile Include="VersusPhysicsGame.cpp" />
@@ -144,17 +148,23 @@
     <ClInclude Include="ChangePositionMessage.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Engine.hpp" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="InputChangeMessage.hpp" />
     <ClInclude Include="InputComponent.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="InputState.hpp" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsDescription.h" />
     <ClInclude Include="PhysicsState.h" />
     <ClInclude Include="RenderComponent.h" />
+    <ClInclude Include="RenderDescription.hpp" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RenderMessage.hpp" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="SDLDestroyer.h" />
+    <ClInclude Include="Shape.hpp" />
     <ClInclude Include="UpdateComponent.h" />
     <ClInclude Include="VersusPhysicsGame.h" />
     <ClInclude Include="World.h" />

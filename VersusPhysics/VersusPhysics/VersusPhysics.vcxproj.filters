@@ -138,6 +138,9 @@
     <ClCompile Include="RenderMessage.cpp">
       <Filter>Source Files\Engine\Renderer\Message</Filter>
     </ClCompile>
+    <ClCompile Include="RenderDescription.cpp">
+      <Filter>Source Files\Engine\Renderer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -202,6 +205,15 @@
     </ClInclude>
     <ClInclude Include="RenderMessage.hpp">
       <Filter>Header Files\Engine\Renderer\Message</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.hpp">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.hpp">
+      <Filter>Header Files\Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderDescription.hpp">
+      <Filter>Header Files\Engine\Renderer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

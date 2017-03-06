@@ -5,29 +5,6 @@
 
 #include <SFML/Graphics.hpp>
 
-enum ShapeType
-{
-	NONE,
-	BOX,
-	CIRCLE
-};
-
-struct Shape
-{
-	float SizeX;
-	float SizeY;
-	float Radius;
-	ShapeType Type;
-	Shape(ShapeType _Type, float _SizeX, float _SizeY, float _Radius) :
-		SizeX(_SizeX), SizeY(_SizeY), Radius(_Radius), Type(_Type)
-	{
-	}
-	Shape() :
-		SizeX(0), SizeY(0), Radius(0), Type(NONE)
-	{
-	}
-};
-
 class RenderComponent : public Component
 {
 public:
@@ -46,7 +23,7 @@ public:
 private:
 	std::shared_ptr<sf::Texture> Texture;
 	std::unique_ptr<sf::Shape> m_RenderShape;
-	Shape m_Shape;
+	Shape _RenderShape;
 
 	sf::Vector2f Position;
 };

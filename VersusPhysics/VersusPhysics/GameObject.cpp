@@ -22,7 +22,7 @@ void GameObject::Update()
 {
 	while (!MessageQueue.empty())
 	{
-		Message Msg = MessageQueue.back();
+		Message Msg = MessageQueue.front();
 		MessageQueue.pop();
 		for (int i = 0; i < Components.size(); i++)
 		{

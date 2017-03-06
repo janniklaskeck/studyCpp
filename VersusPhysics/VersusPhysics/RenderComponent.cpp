@@ -9,20 +9,20 @@ void RenderComponent::Update()
 
 void RenderComponent::Render(sf::RenderWindow * Window)
 {
-	float Width = m_Shape.SizeX;
-	float Height = m_Shape.SizeY;
-	if (m_Shape.Type == BOX)
+	float Width = _RenderShape.Size.x;
+	float Height = _RenderShape.Size.y;
+	if (_RenderShape.Type == AABB)
 	{
 		m_RenderShape = std::make_unique<sf::RectangleShape>(sf::Vector2f(Width, Height));
 		m_RenderShape->setFillColor(sf::Color(255, 0, 0));
 	}
-	else if (m_Shape.Type == CIRCLE)
+	else if (_RenderShape.Type == CIRCLE)
 	{
 		m_RenderShape = std::make_unique<sf::CircleShape>(Width);
 		m_RenderShape->setFillColor(sf::Color(255, 0, 0));
 	}
 
-	if (m_Shape.Type == NONE)
+	if (_RenderShape.Type == NONE)
 	{
 		Sprite->setPosition(Position);
 		Window->draw(*Sprite.get());
@@ -34,13 +34,13 @@ void RenderComponent::Render(sf::RenderWindow * Window)
 	}
 }
 
-RenderComponent::RenderComponent(Shape PrimitiveShape) :
-	m_Shape(PrimitiveShape)
+RenderComponent::RenderComponent(Shape RenderShape) :
+	_RenderShape(RenderShape)
 {
 }
 
-RenderComponent::RenderComponent(std::shared_ptr<sf::Texture> Texture) :
-	Texture(Texture)
+RenderComponent::RenderComponent(std::shared_ptr<sf::Texture> _Texture) :
+	Texture(_Texture)
 {
 	Sprite = std::make_unique<sf::Sprite>(*Texture.get());
 }

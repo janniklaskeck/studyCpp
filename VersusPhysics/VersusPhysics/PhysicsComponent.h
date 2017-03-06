@@ -18,21 +18,6 @@ public:
 
 	virtual void Update() override;
 
-	sf::Vector2f GetPosition()
-	{
-		return State.Position;
-	}
-
-	sf::Vector2f GetSize() const
-	{
-		return Description.Size;
-	}
-
-	sf::Vector2f GetCenter() const
-	{
-		return State.Position + (Description.Size * 0.5f);
-	}
-
 	void ProcessMessage(Message Msg);
 
 	PhysicsState State;
@@ -46,4 +31,14 @@ private:
 	bool IntersectsWith(PhysicsComponent* Other);
 
 	sf::Vector2f GetOverlapVector(PhysicsComponent* Other);
+
+	sf::Vector2f GetPosition()
+	{
+		return State.Position;
+	}
+
+	sf::Vector2f GetCenterAABB() const
+	{
+		return State.Position + (Description.PhysicsShape.Size * 0.5f);
+	}
 };
