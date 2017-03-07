@@ -4,16 +4,17 @@
 #include "ChangePositionMessage.h"
 #include "InputChangeMessage.hpp"
 #include "Application.h"
+#include "Manifold.hpp"
 
 #include <stdio.h>
 #include <glm/glm.hpp>
+#include <algorithm>
 
 void PhysicsComponent::Update()
 {
 	if (Description.Type == DYNAMIC)
 	{
 		Move();
-		//LOG("Pos: %f | %f\n", State.Position.x, State.Position.y);
 	}
 	Parent->Broadcast(ChangePositionMessage::Create(State.Position));
 }
@@ -26,27 +27,27 @@ void PhysicsComponent::ProcessMessage(Message Msg)
 		float Speed = 100.0f;
 		if (_InputState.MoveUp)
 		{
-			State.Velocity.y = -45.0f;
+			State.Velocity.Y = -45.0f;
 		}
 		if (_InputState.MoveDown)
 		{
-			State.Velocity.y = 35.0f;
+			State.Velocity.Y = 35.0f;
 		}
 		if (_InputState.MoveRight)
 		{
-			State.Velocity.x = 35.0f;
+			State.Velocity.X = 35.0f;
 		}
 		if (_InputState.MoveLeft)
 		{
-			State.Velocity.x = -35.0f;
+			State.Velocity.X = -35.0f;
 		}
 	}
 }
 
 void PhysicsComponent::Move()
 {
-	sf::Vector2f Forces(0, 10.0f);
-	sf::Vector2f Acceleration(Forces.x / Description.Mass, Forces.y / Description.Mass);
+	Vector2 Forces(0, 10.0f);
+	Vector2 Acceleration(Forces.X / Description.Mass, Forces.Y / Description.Mass);
 	State.Velocity += Acceleration * UPDATE_INTERVAL_S;
 	State.Position += State.Velocity * UPDATE_INTERVAL_S;
 
@@ -62,52 +63,51 @@ void PhysicsComponent::CheckForCollisionAndResolve(World* GameWorld)
 		if (PhysComp && PhysComp != this)
 		{
 			bool IntersectionDetected = false;
-			sf::Vector2f OverlapVector;
-			if (IntersectsWith(PhysComp))
+			Vector2 OverlapVector;
+			sf::Rect<float> IntersectionRect;
+			if (IntersectsWith(PhysComp, IntersectionRect))
 			{
 				IntersectionDetected = true;
 				OverlapVector = GetOverlapVector(PhysComp);
-				State.Position += OverlapVector;
-			}
-
-			if (IntersectionDetected)
-			{
+				float Length = std::sqrt((OverlapVector.X*OverlapVector.X) + (OverlapVector.Y*OverlapVector.Y));
+				Vector2 CollisionNormal = -1 * OverlapVector / Length;
+				ResolveCollision(PhysComp, CollisionNormal);
+				//State.Position += OverlapVector;
 			}
 		}
 	}
 }
 
-bool PhysicsComponent::IntersectsWith(PhysicsComponent* Other)
+bool PhysicsComponent::IntersectsWith(PhysicsComponent* Other, sf::Rect<float>& IntersectionRect)
 {
 	if (Description.PhysicsShape.Type == AABB)
 	{
-		float lx = glm::abs(GetCenterAABB().x - Other->GetCenterAABB().x);
-		float sumx = (Description.PhysicsShape.Size.x * 0.5f) + (Other->Description.PhysicsShape.Size.x * 0.5f);
-
-		float ly = glm::abs(GetCenterAABB().y - Other->GetCenterAABB().y);
-		float sumy = (Description.PhysicsShape.Size.y* 0.5f) + (Other->Description.PhysicsShape.Size.y * 0.5f);
-
-		return (lx <= sumx && ly <= sumy);
+		sf::Rect<float> ThisAABB = GetAABB();
+		sf::Rect<float> OtherAABB = Other->GetAABB();
+		sf::Rect<float> Intersection;
+		return ThisAABB.intersects(OtherAABB, Intersection);
 	}
 	else if (Description.PhysicsShape.Type == CIRCLE)
 	{
 		float Radii = (Description.PhysicsShape.Radius + Other->Description.PhysicsShape.Radius);
+		float PosX = State.Position.X + Other->State.Position.X;
+		float PosY = State.Position.Y + Other->State.Position.Y;
 		Radii *= Radii;
-		float PosX = State.Position.x + Other->State.Position.x;
-		float PosY = State.Position.y + Other->State.Position.y;
-		return Radii < (PosX*PosX) + (PosY*PosY);
+		PosX *= PosX;
+		PosY *= PosY;
+		return Radii < (PosX + PosY);
 	}
 	return false;
 }
 
-sf::Vector2f PhysicsComponent::GetOverlapVector(PhysicsComponent* PhysComp)
+Vector2 PhysicsComponent::GetOverlapVector(PhysicsComponent* PhysComp)
 {
-	sf::Vector2f OverlapVector;
+	Vector2 OverlapVector;
 
-	float Left = PhysComp->GetPosition().x - (GetPosition().x + Description.PhysicsShape.Size.x);
-	float Right = (PhysComp->GetPosition().x + PhysComp->Description.PhysicsShape.Size.x) - GetPosition().x;
-	float Top = PhysComp->GetPosition().y - (GetPosition().y + Description.PhysicsShape.Size.y);
-	float Bottom = (PhysComp->GetPosition().y + PhysComp->Description.PhysicsShape.Size.y) - GetPosition().y;
+	float Left = PhysComp->GetPosition().X - (GetPosition().X + Description.PhysicsShape.Size.X);
+	float Right = (PhysComp->GetPosition().X + PhysComp->Description.PhysicsShape.Size.X) - GetPosition().X;
+	float Top = PhysComp->GetPosition().Y - (GetPosition().Y + Description.PhysicsShape.Size.Y);
+	float Bottom = (PhysComp->GetPosition().Y + PhysComp->Description.PhysicsShape.Size.Y) - GetPosition().Y;
 
 	if (Left > 0 || Right < 0 || Top > 0 || Bottom < 0)
 	{
@@ -115,27 +115,51 @@ sf::Vector2f PhysicsComponent::GetOverlapVector(PhysicsComponent* PhysComp)
 	}
 	if (glm::abs(Left) < Right)
 	{
-		OverlapVector.x = Left;
+		OverlapVector.X = Left;
 	}
 	else
 	{
-		OverlapVector.x = Right;
+		OverlapVector.X = Right;
 	}
 	if (glm::abs(Top) < Bottom)
 	{
-		OverlapVector.y = Top;
+		OverlapVector.Y = Top;
 	}
 	else
 	{
-		OverlapVector.y = Bottom;
+		OverlapVector.Y = Bottom;
 	}
-	if (glm::abs(OverlapVector.x) < glm::abs(OverlapVector.y))
+	if (glm::abs(OverlapVector.X) < glm::abs(OverlapVector.Y))
 	{
-		OverlapVector.y = 0;
+		OverlapVector.Y = 0;
 	}
 	else
 	{
-		OverlapVector.x = 0;
+		OverlapVector.X = 0;
 	}
 	return OverlapVector;
+}
+
+void PhysicsComponent::ResolveCollision(PhysicsComponent * OtherComp, Vector2 CollisionNormal)
+{
+	Vector2 RelativeVelocity = OtherComp->State.Velocity - State.Velocity;
+	float VelocityAlongNormal = RelativeVelocity.X * CollisionNormal.X + RelativeVelocity.Y * CollisionNormal.Y;
+	if (VelocityAlongNormal > 0)
+	{
+		return;
+	}
+	float e = std::min(Description.Resitution, OtherComp->Description.Resitution);
+
+	float ImpulseScalar = -(1 + e) * VelocityAlongNormal;
+	ImpulseScalar /= 1 / Description.Mass + 1 / OtherComp->Description.Mass;
+
+	Vector2 Impulse = ImpulseScalar * CollisionNormal;
+	if (Description.Type == DYNAMIC)
+	{
+		State.Velocity -= 1 / Description.Mass * Impulse;
+	}
+	if (OtherComp->Description.Type == DYNAMIC)
+	{
+		OtherComp->State.Velocity += 1 / OtherComp->Description.Mass * Impulse;
+	}
 }

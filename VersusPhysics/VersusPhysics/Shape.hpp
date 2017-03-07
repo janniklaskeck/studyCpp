@@ -1,5 +1,5 @@
 #pragma once
-#include <SFML/System/Vector2.hpp>
+#include "Vector2.hpp"
 
 enum ShapeType
 {
@@ -13,6 +13,15 @@ struct Shape
 	Shape()
 	{
 	}
+	Shape(const Shape& Other)
+	{
+		if (this != &Other)
+		{
+			this->Type = Other.Type;
+			this->Radius = Other.Radius;
+			this->Size = Other.Size;
+		}
+	}
 	~Shape()
 	{
 	}
@@ -21,6 +30,17 @@ struct Shape
 	union
 	{
 		float Radius;
-		sf::Vector2f Size;
+		Vector2 Size;
 	};
+
+	Shape& operator=(const Shape& Other)
+	{
+		if (this != &Other)
+		{
+			this->Type = Other.Type;
+			this->Radius = Other.Radius;
+			this->Size = Other.Size;
+		}
+		return *this;
+	}
 };

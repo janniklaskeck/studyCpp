@@ -11,7 +11,7 @@ ChangePositionMessage::~ChangePositionMessage()
 {
 }
 
-Message ChangePositionMessage::Create(sf::Vector2f Position)
+Message ChangePositionMessage::Create(Vector2 Position)
 {
 	Message Msg;
 	Msg.TypeID = MessageType::POSITION_CHANGE;

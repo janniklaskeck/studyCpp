@@ -134,12 +134,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Message.cpp" />
     <ClCompile Include="PhysicsComponent.cpp" />
+    <ClCompile Include="PhysicsEngine.cpp" />
     <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="RenderDescription.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="RenderMessage.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="UpdateComponent.cpp" />
+    <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="VersusPhysicsGame.cpp" />
     <ClCompile Include="World.cpp" />
   </ItemGroup>
@@ -154,18 +156,20 @@
     <ClInclude Include="InputComponent.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InputState.hpp" />
+    <ClInclude Include="Manifold.hpp" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="PhysicsComponent.h" />
     <ClInclude Include="PhysicsDescription.h" />
+    <ClInclude Include="PhysicsEngine.h" />
     <ClInclude Include="PhysicsState.h" />
     <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="RenderDescription.hpp" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="RenderMessage.hpp" />
     <ClInclude Include="ResourceManager.h" />
-    <ClInclude Include="SDLDestroyer.h" />
     <ClInclude Include="Shape.hpp" />
     <ClInclude Include="UpdateComponent.h" />
+    <ClInclude Include="Vector2.hpp" />
     <ClInclude Include="VersusPhysicsGame.h" />
     <ClInclude Include="World.h" />
   </ItemGroup>

@@ -7,7 +7,7 @@ public:
 	ChangePositionMessage();
 	~ChangePositionMessage();
 
-	static Message Create(sf::Vector2f Position);
+	static Message Create(Vector2 Position);
 
 	static const std::string TYPE_NAME;
 

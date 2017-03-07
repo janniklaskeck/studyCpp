@@ -2,6 +2,7 @@
 #include "RenderMessage.hpp"
 #include "ChangePositionMessage.h"
 #include <stdio.h>
+#include <SFML/System/Vector2.hpp>
 
 void RenderComponent::Update()
 {
@@ -9,8 +10,8 @@ void RenderComponent::Update()
 
 void RenderComponent::Render(sf::RenderWindow * Window)
 {
-	float Width = _RenderShape.Size.x;
-	float Height = _RenderShape.Size.y;
+	float Width = _RenderShape.Size.X;
+	float Height = _RenderShape.Size.Y;
 	if (_RenderShape.Type == AABB)
 	{
 		m_RenderShape = std::make_unique<sf::RectangleShape>(sf::Vector2f(Width, Height));
@@ -24,12 +25,12 @@ void RenderComponent::Render(sf::RenderWindow * Window)
 
 	if (_RenderShape.Type == NONE)
 	{
-		Sprite->setPosition(Position);
+		Sprite->setPosition(sf::Vector2f(Position.X, Position.Y));
 		Window->draw(*Sprite.get());
 	}
 	else
 	{
-		m_RenderShape->setPosition(Position);
+		m_RenderShape->setPosition(sf::Vector2f(Position.X, Position.Y));
 		Window->draw(*m_RenderShape.get());
 	}
 }

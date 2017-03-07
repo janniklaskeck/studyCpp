@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+class PhysicsEngine;
+
 class World
 {
 public:
@@ -27,5 +29,6 @@ public:
 private:
 	double CurrentMilliseconds;
 	std::vector<std::shared_ptr<GameObject>> GameObjects;
+	std::unique_ptr<PhysicsEngine> Physics;
 };
 

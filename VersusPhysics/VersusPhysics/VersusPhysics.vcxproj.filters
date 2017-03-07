@@ -85,6 +85,12 @@
     <Filter Include="Header Files\Engine\Renderer\Message">
       <UniqueIdentifier>{a9cf3239-eb11-4ed9-916b-ab4f058e6997}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Physics\Component">
+      <UniqueIdentifier>{14cdb8d1-9bf3-49af-bc81-bd10aee2c3b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Engine\Physics\Component">
+      <UniqueIdentifier>{2cb645dd-28e5-43fb-a449-2dc72ab10d4c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -100,9 +106,6 @@
       <Filter>Source Files\Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="World.cpp">
-      <Filter>Source Files\Engine\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="PhysicsComponent.cpp">
       <Filter>Source Files\Engine\Physics</Filter>
     </ClCompile>
     <ClCompile Include="Component.cpp">
@@ -141,6 +144,15 @@
     <ClCompile Include="RenderDescription.cpp">
       <Filter>Source Files\Engine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="PhysicsEngine.cpp">
+      <Filter>Source Files\Engine\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsComponent.cpp">
+      <Filter>Source Files\Engine\Physics\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector2.cpp">
+      <Filter>Source Files\Engine\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">
@@ -152,9 +164,6 @@
     <ClInclude Include="InputManager.h">
       <Filter>Header Files\Engine\Input</Filter>
     </ClInclude>
-    <ClInclude Include="SDLDestroyer.h">
-      <Filter>Header Files\Engine\Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="World.h">
       <Filter>Header Files\Engine\Physics</Filter>
     </ClInclude>
@@ -163,15 +172,6 @@
     </ClInclude>
     <ClInclude Include="InputComponent.h">
       <Filter>Header Files\Engine\Input</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsComponent.h">
-      <Filter>Header Files\Engine\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsDescription.h">
-      <Filter>Header Files\Engine\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="PhysicsState.h">
-      <Filter>Header Files\Engine\Physics</Filter>
     </ClInclude>
     <ClInclude Include="GameObject.h">
       <Filter>Header Files\Engine\GameObject</Filter>
@@ -209,11 +209,29 @@
     <ClInclude Include="Engine.hpp">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Shape.hpp">
-      <Filter>Header Files\Engine\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="RenderDescription.hpp">
       <Filter>Header Files\Engine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Manifold.hpp">
+      <Filter>Header Files\Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsEngine.h">
+      <Filter>Header Files\Engine\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsComponent.h">
+      <Filter>Header Files\Engine\Physics\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsDescription.h">
+      <Filter>Header Files\Engine\Physics\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsState.h">
+      <Filter>Header Files\Engine\Physics\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Shape.hpp">
+      <Filter>Header Files\Engine\Physics\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.hpp">
+      <Filter>Header Files\Engine\Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

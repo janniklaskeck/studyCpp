@@ -1,6 +1,6 @@
 #pragma once
 #include "Application.h"
-
+#include "Vector2.hpp"
 #include <memory>
 
 class VersusPhysicsGame
@@ -19,6 +19,6 @@ private:
 	void BuildLevel();
 	void CreatePlayers();
 
-	std::shared_ptr<GameObject> BuildStaticBox(glm::vec2 Pos, glm::vec2 Size);
+	std::shared_ptr<GameObject> BuildStaticBox(Vector2 Pos, Vector2 Size);
 };
 

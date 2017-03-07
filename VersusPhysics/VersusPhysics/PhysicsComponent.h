@@ -10,10 +10,10 @@ class PhysicsComponent : public Component
 {
 public:
 
-	PhysicsComponent(PhysicsState _State, PhysicsDescription _Description) :
-		State(_State),
-		Description(_Description)
+	PhysicsComponent(PhysicsState _State, PhysicsDescription _Description)
 	{
+		this->Description = _Description;
+		this->State = _State;
 	}
 
 	virtual void Update() override;
@@ -21,24 +21,35 @@ public:
 	void ProcessMessage(Message Msg);
 
 	PhysicsState State;
-private:
 	PhysicsDescription Description;
+private:
 
 	void Move();
 
 	void CheckForCollisionAndResolve(World* GameWorld);
 
-	bool IntersectsWith(PhysicsComponent* Other);
+	bool IntersectsWith(PhysicsComponent* Other, sf::Rect<float>& IntersectionRect);
 
-	sf::Vector2f GetOverlapVector(PhysicsComponent* Other);
+	Vector2 GetOverlapVector(PhysicsComponent* Other);
 
-	sf::Vector2f GetPosition()
+	void ResolveCollision(PhysicsComponent* OtherComp, Vector2 CollisionNormal);
+
+	Vector2 GetPosition()
 	{
 		return State.Position;
 	}
 
-	sf::Vector2f GetCenterAABB() const
+	Vector2 GetCenterAABB() const
 	{
 		return State.Position + (Description.PhysicsShape.Size * 0.5f);
+	}
+	sf::Rect<float> GetAABB()
+	{
+		sf::Rect<float> Rectangle;
+		Rectangle.left = State.Position.X;
+		Rectangle.top = State.Position.Y;
+		Rectangle.width = Description.PhysicsShape.Size.X;
+		Rectangle.height = Description.PhysicsShape.Size.Y;
+		return Rectangle;
 	}
 };

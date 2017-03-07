@@ -33,10 +33,10 @@ void VersusPhysicsGame::Start()
 void VersusPhysicsGame::BuildLevel()
 {
 	sf::Vector2u WindowSize = App->GetWindowSize();
-	App->GameWorld->AddGameObject(BuildStaticBox(glm::vec2(0, WindowSize.y - 10), glm::vec2(WindowSize.x, 10)));
-	App->GameWorld->AddGameObject(BuildStaticBox(glm::vec2(0, 0), glm::vec2(WindowSize.x, 10)));
-	App->GameWorld->AddGameObject(BuildStaticBox(glm::vec2(0, 0), glm::vec2(10, WindowSize.y)));
-	App->GameWorld->AddGameObject(BuildStaticBox(glm::vec2(WindowSize.x - 10, 0), glm::vec2(10, WindowSize.y)));
+	App->GameWorld->AddGameObject(BuildStaticBox(Vector2(0.0f, WindowSize.y - 10.0f), Vector2(WindowSize.x, 10.0f)));
+	App->GameWorld->AddGameObject(BuildStaticBox(Vector2(0.0f, 0.0f), Vector2(WindowSize.x, 10.0f)));
+	App->GameWorld->AddGameObject(BuildStaticBox(Vector2(0.0f, 0.0f), Vector2(10.0f, WindowSize.y)));
+	App->GameWorld->AddGameObject(BuildStaticBox(Vector2(WindowSize.x - 10.0f, 0.0f), Vector2(10.0f, WindowSize.y)));
 }
 
 void VersusPhysicsGame::CreatePlayers()
@@ -52,20 +52,20 @@ void VersusPhysicsGame::CreatePlayers()
 	PhysicsDescription Description_P1{};
 	Description_P1.Mass = 1.0f;
 	Description_P1.PhysicsShape.Type = AABB;
-	Description_P1.PhysicsShape.Size = sf::Vector2f(Size.width, Size.height);
+	Description_P1.PhysicsShape.Size = Vector2(Size.width, Size.height);
 	Description_P1.Type = DYNAMIC;
 
-	PhysicsState State_P1(sf::Vector2f(50, 600), sf::Vector2f());
+	PhysicsState State_P1(Vector2(50, 600), Vector2());
 	PlayerOne->AddComponent(new PhysicsComponent(State_P1, Description_P1));
 	PlayerOne->AddComponent(new InputComponent(sf::Keyboard::W, sf::Keyboard::S, sf::Keyboard::D, sf::Keyboard::A, sf::Keyboard::Space));
 
 	PhysicsDescription Description_P2{};
 	Description_P2.Mass = 1.0f;
 	Description_P2.PhysicsShape.Type = AABB;
-	Description_P2.PhysicsShape.Size = sf::Vector2f(Size.width, Size.height);
+	Description_P2.PhysicsShape.Size = Vector2(Size.width, Size.height);
 	Description_P2.Type = DYNAMIC;
 
-	PhysicsState State_P2(sf::Vector2f(1000, 600), sf::Vector2f());
+	PhysicsState State_P2(Vector2(1000, 600), Vector2());
 	PlayerTwo->AddComponent(new RenderComponent(ResourceManager::LoadTexture("Assets\\player2.png")));
 	PlayerTwo->AddComponent(new PhysicsComponent(State_P2, Description_P2));
 	PlayerTwo->AddComponent(new InputComponent(sf::Keyboard::Up, sf::Keyboard::Down, sf::Keyboard::Right, sf::Keyboard::Left, sf::Keyboard::RControl));
@@ -75,19 +75,20 @@ void VersusPhysicsGame::CreatePlayers()
 	App->GameWorld->AddGameObject(PlayerTwo);
 }
 
-std::shared_ptr<GameObject> VersusPhysicsGame::BuildStaticBox(glm::vec2 Pos, glm::vec2 Size)
+std::shared_ptr<GameObject> VersusPhysicsGame::BuildStaticBox(Vector2 Pos, Vector2 Size)
 {
 	std::shared_ptr<GameObject> Bottom = std::make_shared<GameObject>(11);
 	PhysicsDescription Description{};
 	Description.Mass = 1.0;
 	Description.PhysicsShape.Type = AABB;
-	Description.PhysicsShape.Size = sf::Vector2f(Size.x, Size.y);
-	PhysicsState State(sf::Vector2f(Pos.x, Pos.y), sf::Vector2f());
+	Description.PhysicsShape.Size = Vector2(Size.X, Size.Y);
+	Description.Resitution = 0.0f;
+	PhysicsState State(Vector2(Pos.X, Pos.Y), Vector2());
 	Bottom->AddComponent(new PhysicsComponent(State, Description));
 	Shape Box;
 	Box.Type = AABB;
-	Box.Size.x = Size.x;
-	Box.Size.y = Size.y;
+	Box.Size.X = Size.X;
+	Box.Size.Y = Size.Y;
 	Bottom->AddComponent(new RenderComponent(Box));
 	return Bottom;
 }

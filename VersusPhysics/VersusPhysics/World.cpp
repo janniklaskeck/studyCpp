@@ -1,5 +1,6 @@
 #include "World.h"
 #include "Constants.h"
+#include "PhysicsEngine.h"
 
 void World::Update()
 {
@@ -28,6 +29,7 @@ void World::AddGameObject(std::shared_ptr<GameObject> NewGameObject)
 
 World::World()
 {
+	Physics = std::make_unique<PhysicsEngine>();
 }
 
 World::~World()

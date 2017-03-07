@@ -2,6 +2,7 @@
 #include "Component.h"
 #include "PhysicsComponent.h"
 #include "Message.h"
+#include "Vector2.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -25,5 +26,5 @@ private:
 	std::unique_ptr<sf::Shape> m_RenderShape;
 	Shape _RenderShape;
 
-	sf::Vector2f Position;
+	Vector2 Position;
 };
